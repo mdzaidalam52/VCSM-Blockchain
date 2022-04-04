@@ -2,39 +2,49 @@
 
 pragma solidity ^0.8.13;
 
-contract People{
-    
-    enum gender{FEMALE, MALE, OTHER}
-    struct person{
-        string name;
-        uint8 date;
-        uint8 month;
-        uint8 year;
-        gender gender;
+import "./Admin.sol";
+
+contract People {
+    address public owner;
+
+    uint256 public vac;
+    uint256 public num_of_doses = 0;
+
+    constructor() {
+        owner = msg.sender;
     }
 
-    address admin;
-    mapping(uint256 => person) personInfo;
-
-    constructor(){
-        admin = msg.sender;
+    function registerFirstVaccine(address _admin, uint256 _vaccine) public {
+        require(
+            num_of_doses == 0,
+            "This beneficiary has already have its first dose of vaccine"
+        );
+        Admin admin = Admin(_admin);
+        admin.registerBeneficiaryFirstVaccine(owner, _vaccine);
     }
 
-    function register(uint256 _aadhar, string memory _name, uint8 _d, uint8 _m, uint8 _y, uint8 _gender) public returns(person memory){
-        require(personInfo[_aadhar].date == 0, "Already registered");
-
-        gender g = gender.OTHER;
-        if(_gender == 0){
-            g = gender.FEMALE;
-        }else if(_gender == 1){
-            g = gender.MALE;
-        }
-        person memory p = person(_name, _d, _m, _y, g);
-        personInfo[_aadhar] = p;
-        return p;
+    function registerSecondVaccine(address _admin) public {
+        require(
+            num_of_doses == 1,
+            "This beneficiary has not have its first dose of vaccine"
+        );
+        Admin admin = Admin(_admin);
+        admin.registerBeneficiarySecondVaccine(owner);
     }
 
-    function getUsers(uint256 aadhar) public view returns(person memory){
-        return personInfo[aadhar];
+    function getNumOfDoses() public view returns (uint256) {
+        return num_of_doses;
+    }
+
+    function getVaccineType() public view returns (uint256) {
+        return vac;
+    }
+
+    function increaseNumOfDoses() public {
+        num_of_doses++;
+    }
+
+    function setVaccineType(uint256 _type) public {
+        vac = _type;
     }
 }
