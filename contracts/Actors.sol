@@ -80,12 +80,17 @@ contract Actors {
         admin.makeOrder(_vaccine, _qty, _manufacturer);
     }
 
+    function adminVaccinationDone(uint256 _aadhar) public onlyAdmin {
+        Admin admin = Admin(msg.sender);
+        admin.vaccinationDone(address(beneficiaries[_aadhar]));
+    }
+
     function beneficiaryFirstVaccine(
         uint256 _aadhar,
         uint256 _vaccine,
         address _admin
     ) public onlyBenefeciary(_aadhar) {
-        People beneficiary = People(msg.sender);
+        People beneficiary = People(beneficiaries[_aadhar]);
         beneficiary.registerFirstVaccine(_admin, _vaccine);
     }
 
@@ -93,7 +98,7 @@ contract Actors {
         public
         onlyBenefeciary(_aadhar)
     {
-        People beneficiary = People(msg.sender);
+        People beneficiary = People(beneficiaries[_aadhar]);
         beneficiary.registerSecondVaccine(_admin);
     }
 
