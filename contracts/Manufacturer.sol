@@ -2,38 +2,48 @@
 
 pragma solidity ^0.8.13;
 
-contract Manufacturer {
+import "./Delivery.sol";
+
+contract Manufacturer{
     address public owner;
 
-    struct stock {
-        uint256 price;
-        uint256 qty;
+    struct stock{
+        uint price;
+        uint qty;
     }
 
-    mapping(address => mapping(uint256 => uint256)) ordered_stocks;
-    mapping(uint256 => stock) stocks;
-
-    constructor() {
+    mapping(address => mapping(uint => uint)) ordered_stocks;
+    mapping(uint => stock) stocks;
+    mapping(address => mapping(uint => uint)) out_for_delivery;
+    
+    constructor(){
         owner = msg.sender;
     }
 
-    modifier onlyOwner() {
+    modifier onlyOwner(){
         require(msg.sender == owner, "You are not the manufacturer");
         _;
     }
 
-    function receiveOrder(
-        uint256 vac,
-        uint256 qty,
-        address _admin
-    ) public payable {
+    function receiveOrder(uint vac, uint qty, address _admin) public payable {
         require(stocks[vac].qty < qty, "Insufficient Stock");
         ordered_stocks[_admin][vac] += qty;
         stocks[vac].qty -= qty;
         // Add Delivery functionality
     }
 
-    function addStocks(uint256 vac, uint256 qty) public onlyOwner {
+    function createDelivery(uint vac, uint qty, address _admin) public{
+        require(ordered_stocks[_admin][vac] >= qty, "Order placed is less");
+        ordered_stocks[_admin][vac] -= qty;
+        Delivery delivery = new Delivery(owner, _admin, vac, qty);
+        out_for_delivery[address(delivery)][vac] = qty;
+    }
+
+    function finishDelivery(address delivery, uint vac, uint qty) public{
+        out_for_delivery[delivery][vac] -= qty;
+    }
+
+    function addStocks(uint vac, uint qty) public onlyOwner{
         stocks[vac].qty += qty;
     }
 }
