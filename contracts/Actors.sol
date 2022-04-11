@@ -5,6 +5,7 @@ pragma solidity ^0.8.13;
 import "./Manufacturer.sol";
 import "./People.sol";
 import "./Admin.sol";
+import "./Delivery.sol";
 
 contract Actors{
     address owner;
@@ -77,5 +78,10 @@ contract Actors{
     function manufacturerAddStock(uint _vaccine, uint _qty) public onlyManufacturer{
         Manufacturer manufacturer = Manufacturer(msg.sender);
         manufacturer.addStocks(_vaccine, _qty);
+    }
+
+    function manufacturerCreateDelivery(uint vac, uint qty, address _admin) public onlyManufacturer{
+        Manufacturer manufacturer = Manufacturer(msg.sender);
+        manufacturer.createDelivery(vac, qty, _admin);
     }
 }
