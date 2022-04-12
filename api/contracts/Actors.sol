@@ -17,41 +17,41 @@ contract Actors{
         owner = msg.sender;
     }
 
-    modifier noManufacturer(){
-        require(address(manufacturers[msg.sender]) == address(0), "Already a manufacturer");
+    modifier onlyOwner(){
+        require(msg.sender == owner, "Not the Onwer");
+        _;
+    }
+
+    modifier notRegistered(){
+        require(address(manufacturers[msg.sender]) == address(0) && address(admins[msg.sender]) == address(0), "Already a manufacturer or admin");
         _;
     }
     modifier noBenefeciary(uint _aadhar){
-        require(address(beneficiaries[_aadhar]) == address(0), "Already a beneficiary");
-        _;
-    }
-    modifier noAdmin(){
-        require(address(admins[msg.sender]) == address(0), "Already a manufacturer");
+        require(address(beneficiaries[_aadhar]) == address(0) && msg.sender == owner, "Already a beneficiary");
         _;
     }
     modifier onlyManufacturer(){
-        require(address(manufacturers[msg.sender]) != address(0), "Already a manufacturer");
+        require(address(manufacturers[msg.sender]) != address(0), "Not a manufacturer");
         _;
     }
     modifier onlyBenefeciary(uint _aadhar){
-        require(address(beneficiaries[_aadhar]) != address(0), "Already a beneficiary");
+        require(address(beneficiaries[_aadhar]) != address(0) && msg.sender == owner, "Not a beneficiary");
         _;
     }
     modifier onlyAdmin(){
-        require(address(admins[msg.sender]) != address(0), "Already a manufacturer");
+        require(address(admins[msg.sender]) != address(0), "Not a manufacturer");
         _;
     }    
 
-    function createManufacturer() public noManufacturer{
+    function createManufacturer() public notRegistered{
         manufacturers[msg.sender] = new Manufacturer();
     }
 
-    function createBenefeciary(uint _aadhar) public noBenefeciary(_aadhar){
-        
+    function createBenefeciary(uint _aadhar) public noBenefeciary(_aadhar){        
         beneficiaries[_aadhar] = new People();
     }
 
-    function createAdmin() public noAdmin{
+    function createAdmin() public notRegistered{
         admins[msg.sender] = new Admin();
     }
 
@@ -70,7 +70,7 @@ contract Actors{
         beneficiary.registerFirstVaccine(_admin, _vaccine);
     }
 
-    function beneficiarySecondVaccine(uint _aadhar, address _admin) public onlyBenefeciary(_aadhar){
+    function beneficiarySecondVaccine(uint _aadhar, address _admin) public onlyBenefeciary(_aadhar) onlyOwner{
         People beneficiary = People(beneficiaries[_aadhar]);
         beneficiary.registerSecondVaccine(_admin);
     }
