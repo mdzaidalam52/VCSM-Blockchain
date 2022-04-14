@@ -9,6 +9,8 @@ import "./Delivery.sol";
 
 contract Actors{
     address owner;
+    uint hashDigits = 12;
+	uint hashModulus = 10 ** hashDigits;
     mapping (address => Admin) public admins;
     mapping (uint => People) public beneficiaries;
     mapping (address => Manufacturer) public manufacturers;
@@ -47,8 +49,15 @@ contract Actors{
         manufacturers[msg.sender] = new Manufacturer();
     }
 
+    function generateRandomhash(uint _aadhar) public view returns (uint)
+	{
+		uint random = uint(keccak256(abi.encodePacked(_aadhar)));
+		return random % hashModulus;
+	}
+
     function createBenefeciary(uint _aadhar) public noBenefeciary(_aadhar){        
         beneficiaries[_aadhar] = new People();
+        hashed_Aadhar = generateRandomhash(_aadhar);
     }
 
     function createAdmin() public notRegistered{
