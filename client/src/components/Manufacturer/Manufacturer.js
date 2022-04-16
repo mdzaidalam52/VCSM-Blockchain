@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Form, Button, Table } from 'react-bootstrap'
 
 function Manufacturer() {
-    const [signedIn, setSignedIn] = useState(true)
+    const [signedIn, setSignedIn] = useState(false)
     const [availableStocks, setAvailableStocks] = useState({
         1: 0,
         2: 0,
