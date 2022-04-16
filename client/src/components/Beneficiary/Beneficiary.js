@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import Card from 'react-bootstrap/Card'
 import { Button, DropdownButton, Dropdown } from 'react-bootstrap'
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import Form from 'react-bootstrap/Form'
 
 function Beneficiary() {

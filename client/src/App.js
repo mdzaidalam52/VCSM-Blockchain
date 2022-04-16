@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 // import SimpleStorageContract from "./contracts/SimpleStorage.json";
 // import getWeb3 from "./getWeb3";
-import Beneficiary from './Beneficiary'
+import Beneficiary from './components/Beneficiary/Beneficiary'
 import * as bst from 'bootstrap/dist/css/bootstrap.min.css'
 import { Navbar, Container, Nav, NavDropdown } from 'react-bootstrap'
 import { Link, BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import './App.css'
+import Admin from './components/Admin/Admin'
+import Manufacturer from './components/Manufacturer/Manufacturer'
 
 function App() {
     // const [values, setValues] = useState({ storageValue: 0, web3: null, accounts: null, contract: null })
@@ -95,6 +97,16 @@ function App() {
                         <Route
                             path='beneficiary'
                             element={<Beneficiary />}
+                            exact
+                        />
+                        <Route
+                            path='admin'
+                            element={<Admin />}
+                            exact
+                        />
+                        <Route
+                            path='manufacturer'
+                            element={<Manufacturer />}
                             exact
                         />
                     </Routes>

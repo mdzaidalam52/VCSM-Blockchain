@@ -1,0 +1,4 @@
+.vaccine-dose{
+  display : flex;
+  flex-direction : column;
+}
