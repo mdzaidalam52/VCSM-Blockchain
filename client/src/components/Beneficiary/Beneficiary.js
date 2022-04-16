@@ -5,8 +5,10 @@ import Form from 'react-bootstrap/Form'
 
 function Beneficiary() {
     const [aadhar, setAadhar] = useState('')
-    const [signedIn, setSignedIn] = useState(false)
+    const [signedIn, setSignedIn] = useState(true)
     const [msg, setMsg] = useState('')
+    const [adminChosen, setAdminChosen] = useState(false)
+    const [centerNumber, setCenterNumber] = useState(0)
 
     const register = (e) => {
         e.preventDefault()
@@ -18,21 +20,51 @@ function Beneficiary() {
         console.log('signin')
     }
 
+    const getInfoAdmin = (center) => {
+        console.log()
+    }
+
+    const changeCenterNumber = (e) => {
+        setCenterNumber(e.target.value)
+        console.log(centerNumber)
+    }
+
     const userProfile = () => {
         return (
             <Card className='text-center'>
-                <Card.Header>Beneficiary Page</Card.Header>
+                <Card.Header>{aadhar}</Card.Header>
                 <Card.Body>
-                    <Card.Title>{aadhar}</Card.Title>
-                    <Button variant='primary'>Dose 1</Button>{' '}
-                    <Button variant='primary'>Dose 2</Button>{' '}
-                    <Dropdown.Divider />
-                    <Form.Select id='disabledSelect'>
-                        <option>Vaccine A</option>
-                        <option>Vaccine B</option>
-                        <option>Vaccine C</option>
-                        <option>Vaccine D</option>
-                    </Form.Select>
+                    <Card.Title>Aadhar Number: {aadhar}</Card.Title>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Center Number</Form.Label>
+                        <Form.Control
+                            onKeyUp={(e) => changeCenterNumber(e)}
+                            type='number'
+                            placeholder='Enter Center Number'
+                        />
+                    </Form.Group>
+                    <Button onClick={(e) => getInfoAdmin(e)} variant='primary'>
+                        Search
+                    </Button>
+                    {() => {
+                        if (adminChosen) {
+                            return (
+                                <>
+                                    <Form.Select>
+                                        <option>Vaccine A</option>
+                                        <option>Vaccine B</option>
+                                        <option>Vaccine C</option>
+                                        <option>Vaccine D</option>
+                                    </Form.Select>
+                                    <Dropdown.Divider />
+                                    <Button variant='primary'>
+                                        Dose 1
+                                    </Button>{' '}
+                                    <Button variant='primary'>Dose 2</Button>{' '}
+                                </>
+                            )
+                        }
+                    }}
                 </Card.Body>
             </Card>
         )
@@ -41,7 +73,7 @@ function Beneficiary() {
     const form = () => {
         return (
             <>
-                <Form.Group className='mb-3' controlId='formBasicPassword'>
+                <Form.Group className='mb-3'>
                     <Form.Label>Aadhar Number</Form.Label>
                     <Form.Control
                         onClick={(e) => setAadhar(e.target.value)}
@@ -49,10 +81,10 @@ function Beneficiary() {
                         placeholder='Enter you Aadhar Number'
                     />
                 </Form.Group>
-                <Button onClick={e => register(e)} variant='primary'>
+                <Button onClick={(e) => register(e)} variant='primary'>
                     Register
                 </Button>{' '}
-                <Button onClick={e => signIn(e)} variant='primary'>
+                <Button onClick={(e) => signIn(e)} variant='primary'>
                     Sign In
                 </Button>
                 <h1>{msg}</h1>
