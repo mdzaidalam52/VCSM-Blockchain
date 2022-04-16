@@ -1,84 +1,70 @@
-import React, { useState } from "react";
-import Card from "react-bootstrap/Card";
-import { Button, DropdownButton, Dropdown } from "react-bootstrap";
-import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import Form from "react-bootstrap/Form";
+import React, { useState } from 'react'
+import Card from 'react-bootstrap/Card'
+import { Button, DropdownButton, Dropdown } from 'react-bootstrap'
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import Form from 'react-bootstrap/Form'
 
 function Beneficiary() {
-  // const [aadharNumber, setAadharNumber] = useState("");
-  // const [password, setPassword] = useState("");
- const[statusCode,setStatusCode] = useState(0);
+    const [aadhar, setAadhar] = useState('')
+    const [signedIn, setSignedIn] = useState(false)
+    const [msg, setMsg] = useState('')
 
+    const register = (e) => {
+        e.preventDefault()
+        console.log('register')
+    }
 
-  //   const signIn =(e) =>{
-  //     e.preventDefault();
-  //     auth
-  // .signInWithEmailAndPassword(aadharNumber,password)
-  // .then(auth => {
-  //   history.push('/')
-  // })
-  // .catch(error => alert(error.message))
+    const signIn = (e) => {
+        e.preventDefault()
+        console.log('signin')
+    }
 
-  //   }
+    const userProfile = () => {
+        return (
+            <Card className='text-center'>
+                <Card.Header>Beneficiary Page</Card.Header>
+                <Card.Body>
+                    <Card.Title>{aadhar}</Card.Title>
+                    <Button variant='primary'>Dose 1</Button>{' '}
+                    <Button variant='primary'>Dose 2</Button>{' '}
+                    <Dropdown.Divider />
+                    <Form.Select id='disabledSelect'>
+                        <option>Vaccine A</option>
+                        <option>Vaccine B</option>
+                        <option>Vaccine C</option>
+                        <option>Vaccine D</option>
+                    </Form.Select>
+                </Card.Body>
+            </Card>
+        )
+    }
 
-  //   const register =(e) =>{
-  //     e.preventDefault();
-  //     auth
-  // .createUserWithAadharNumber(aadharNumber, password)
-  // .then((auth) =>{
-  //   console.log(auth);
-  //   if(auth){
-  //     history.push('/')
-  //   }
-  // })
-  // .catch(error => alert(error.message))
-  //   }
+    const form = () => {
+        return (
+            <>
+                <Form.Group className='mb-3' controlId='formBasicPassword'>
+                    <Form.Label>Aadhar Number</Form.Label>
+                    <Form.Control
+                        onClick={(e) => setAadhar(e.target.value)}
+                        type='number'
+                        placeholder='Enter you Aadhar Number'
+                    />
+                </Form.Group>
+                <Button onClick={e => register(e)} variant='primary'>
+                    Register
+                </Button>{' '}
+                <Button onClick={e => signIn(e)} variant='primary'>
+                    Sign In
+                </Button>
+                <h1>{msg}</h1>
+            </>
+        )
+    }
 
-  const register =() =>{
-    setStatusCode();
-  }
-
-  const signIn =() =>{
-    setStatusCode();
-  }
-
-  return (
-    <div className="beneficiary_container">
-      {/* <h1>I am in beneficiary</h1> */}
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label>Aadhar Number</Form.Label>
-        <Form.Control type="password" placeholder="Enter you Aadhar Number" />
-      </Form.Group>
-      <Button onClick={register} variant="primary">
-        Register
-      </Button>{" "}
-      <Button onClick={signIn} variant="primary">
-        Sign In
-      </Button>
-      
-      if(statusCode==0){}
-      if(statusCode==1){}
-      if(statusCode==2){}
-     
-      <div className="successful_registration">
-        <h1>Registration Successful</h1>
-      </div>
-      <Card className="text-center">
-        <Card.Header>Beneficiary Page</Card.Header>
-        <Card.Body>
-          <Card.Title>Beneficiary Name</Card.Title>
-          <Card.Text>Aadhar Number</Card.Text>
-          <Button variant="primary">Dose 1</Button>{" "}
-          <Button variant="primary">Dose 2</Button> <Dropdown.Divider />
-          <DropdownButton id="dropdown-basic-button" title="Dropdown button">
-            <Dropdown.Item href="#/action-1">Vaccine A</Dropdown.Item>
-            <Dropdown.Item href="#/action-2">Vaccine B</Dropdown.Item>
-            <Dropdown.Item href="#/action-3">Vaccine C</Dropdown.Item>
-          </DropdownButton>
-        </Card.Body>
-        <Card.Footer className="text-muted">Register</Card.Footer>
-      </Card>
-    </div>
-  );
+    return (
+        <div className='beneficiary_container'>
+            {signedIn ? userProfile() : form()}
+        </div>
+    )
 }
-export default Beneficiary;
+export default Beneficiary
