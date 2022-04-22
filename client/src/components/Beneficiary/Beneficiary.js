@@ -1,18 +1,49 @@
 import React, { useState } from 'react'
 import Card from 'react-bootstrap/Card'
-import { Button, DropdownButton, Dropdown } from 'react-bootstrap'
+import { Button, Dropdown } from 'react-bootstrap'
 import Form from 'react-bootstrap/Form'
+import getWeb3 from '../../getWeb3'
+import Actors from '../../contracts/Actors.json'
 
 function Beneficiary() {
     const [aadhar, setAadhar] = useState('')
-    const [signedIn, setSignedIn] = useState(true)
+    const [signedIn, setSignedIn] = useState(false)
     const [msg, setMsg] = useState('')
     const [adminChosen, setAdminChosen] = useState(false)
     const [centerNumber, setCenterNumber] = useState(0)
 
-    const register = (e) => {
+    let v = { web3: null, accounts: null, contract: null }
+    const connectToBlockchain = async () => {
+        try {
+            const web3 = await getWeb3()
+            const accounts = await web3.eth.getAccounts()
+            const networkId = 5777
+            const deployedNetwork = Actors.networks[networkId]
+            const instance = new web3.eth.Contract(
+                Actors.abi,
+                deployedNetwork && deployedNetwork.address
+            )
+            v = { contract: instance, accounts, web3 }
+        } catch (error) {
+            alert(
+                `Failed to load web3, accounts, or contract. Check console for details.`
+            )
+            console.error(error)
+        }
+    }
+    connectToBlockchain()
+    console.log(v)
+
+    const register = async (e) => {
         e.preventDefault()
         console.log('register')
+        const response = await v.contract.methods
+            .createBenefeciary(Number(aadhar))
+            .call()
+        console.log(response)
+        if (response) {
+            setMsg('Registeration Successful')
+        }
     }
 
     const signIn = (e) => {

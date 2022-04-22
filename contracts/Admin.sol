@@ -57,4 +57,8 @@ contract Admin{
         totalVaccines += qty;
         ordered_stocks[_manufacturer][_vaccine] -= qty;
     }
+
+    function getInfo() public view returns(address, uint, uint, uint, uint, uint){
+        return(owner, centre_no, available_stock[1], available_stock[2], available_stock[3], available_stock[4]);
+    }
 }
