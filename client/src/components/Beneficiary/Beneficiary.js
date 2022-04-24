@@ -1,58 +1,52 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Card from 'react-bootstrap/Card'
 import { Button, Dropdown } from 'react-bootstrap'
 import Form from 'react-bootstrap/Form'
-import getWeb3 from '../../getWeb3'
-import Actors from '../../contracts/Actors.json'
 
-function Beneficiary() {
-    const [aadhar, setAadhar] = useState('')
+function Beneficiary(props) {
+    const [aadhar, setAadhar] = useState(0)
     const [signedIn, setSignedIn] = useState(false)
     const [msg, setMsg] = useState('')
     const [adminChosen, setAdminChosen] = useState(false)
     const [centerNumber, setCenterNumber] = useState(0)
-
-    let v = { web3: null, accounts: null, contract: null }
-    const connectToBlockchain = async () => {
-        try {
-            const web3 = await getWeb3()
-            const accounts = await web3.eth.getAccounts()
-            const networkId = 5777
-            const deployedNetwork = Actors.networks[networkId]
-            const instance = new web3.eth.Contract(
-                Actors.abi,
-                deployedNetwork && deployedNetwork.address
-            )
-            v = { contract: instance, accounts, web3 }
-        } catch (error) {
-            alert(
-                `Failed to load web3, accounts, or contract. Check console for details.`
-            )
-            console.error(error)
-        }
-    }
-    connectToBlockchain()
-    console.log(v)
+    const [BeneficiaryInfo, setBeneficiaryInfo] = useState({
+        vaccine: 0,
+        numberOfDoses: 0,
+    })
 
     const register = async (e) => {
         e.preventDefault()
-        console.log('register')
-        const response = await v.contract.methods
+        const response = await props.values.contract.methods
             .createBenefeciary(Number(aadhar))
-            .call()
-        console.log(response)
-        if (response) {
-            setMsg('Registeration Successful')
-        }
+            .send({ from: props.values.accounts[0] })
+        setMsg(
+            response.events.Success.returnValues.success
+                ? 'Registered Successfully'
+                : 'Aadhar Number is already registered'
+        )
     }
 
-    const signIn = (e) => {
+    const signIn = async (e) => {
         e.preventDefault()
-        console.log('signin')
+        const response = await props.values.contract.methods
+            .getBeneficiaryInfo(Number(aadhar))
+            .send({ from: props.values.accounts[0] })
+        if(response.events.BeneficiaryInfo.returnValues.info[1] == 10){
+            setMsg("This Aadhar is not registered with us")
+            return
+        }
+        setBeneficiaryInfo({
+            vaccine: response.events.BeneficiaryInfo.returnValues.info[1],
+            numberOfDoses: response.events.BeneficiaryInfo.returnValues.info[0],
+        })
+        console.log(response)
+        setSignedIn(true)
     }
+
+    const getAllAdmins = async () => {}
 
     const getInfoAdmin = (center) => {
-        console.log()
+        console.log(center)
     }
 
     const changeCenterNumber = (e) => {
@@ -60,9 +54,32 @@ function Beneficiary() {
         console.log(centerNumber)
     }
 
-    const userProfile = () => {
-        return (
-            <Card className='text-center'>
+    const changeAadhar = (e) => {
+        setAadhar(e.target.value)
+        console.log(aadhar)
+    }
+
+    return (
+        <div className='beneficiary_container'>
+            <div hidden={signedIn}>
+                <Form.Group className='mb-3'>
+                    <Form.Label>Aadhar Number</Form.Label>
+                    <Form.Control
+                        onChange={(e) => changeAadhar(e)}
+                        type='number'
+                        placeholder='Enter your Aadhar Number'
+                    />
+                </Form.Group>
+                <Button onClick={(e) => register(e)} variant='primary'>
+                    Register
+                </Button>{' '}
+                <Button onClick={(e) => signIn(e)} variant='primary'>
+                    Sign In
+                </Button>
+                <h1>{msg}</h1>
+            </div>
+
+            <Card hidden={!signedIn} className='text-center'>
                 <Card.Header>{aadhar}</Card.Header>
                 <Card.Body>
                     <Card.Title>Aadhar Number: {aadhar}</Card.Title>
@@ -98,34 +115,6 @@ function Beneficiary() {
                     }}
                 </Card.Body>
             </Card>
-        )
-    }
-
-    const form = () => {
-        return (
-            <>
-                <Form.Group className='mb-3'>
-                    <Form.Label>Aadhar Number</Form.Label>
-                    <Form.Control
-                        onClick={(e) => setAadhar(e.target.value)}
-                        type='number'
-                        placeholder='Enter you Aadhar Number'
-                    />
-                </Form.Group>
-                <Button onClick={(e) => register(e)} variant='primary'>
-                    Register
-                </Button>{' '}
-                <Button onClick={(e) => signIn(e)} variant='primary'>
-                    Sign In
-                </Button>
-                <h1>{msg}</h1>
-            </>
-        )
-    }
-
-    return (
-        <div className='beneficiary_container'>
-            {signedIn ? userProfile() : form()}
         </div>
     )
 }

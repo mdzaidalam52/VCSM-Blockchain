@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 
 import "./Admin.sol";
 
-contract People{
+contract Beneficiary{
     address public owner;
 
     uint public vac;
