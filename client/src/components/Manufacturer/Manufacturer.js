@@ -25,6 +25,12 @@ function Manufacturer(props) {
         3: 0,
         4: 0,
     })
+    const [vaccinePrice, setVaccinePrice] = useState({
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+    })
 
     const register = async (e) => {
         e.preventDefault()
@@ -36,6 +42,31 @@ function Manufacturer(props) {
                 ? 'Registered Successfully'
                 : 'This address is already registered as Manufacturer'
         )
+    }
+
+    const changePriceA = (e) => {
+        setVaccinePrice({ ...vaccinePrice, 1: e })
+    }
+    const changePriceB = (e) => {
+        setVaccinePrice({ ...vaccinePrice, 2: e })
+    }
+    const changePriceC = (e) => {
+        setVaccinePrice({ ...vaccinePrice, 3: e })
+    }
+    const changePriceD = (e) => {
+        setVaccinePrice({ ...vaccinePrice, 4: e })
+    }
+
+    const changeVaccinePrice = async () => {
+        const response = await props.values.contract.methods
+            .manufacturerSetPrice(
+                vaccinePrice['1'] * 1000000000,
+                vaccinePrice['2'] * 1000000000,
+                vaccinePrice['3'] * 1000000000,
+                vaccinePrice['4'] * 1000000000
+            )
+            .send({ from: props.values.accounts[0] })
+        console.log(response)
     }
 
     const signIn = async (e) => {
@@ -69,6 +100,12 @@ function Manufacturer(props) {
             3: response.events.ManufacturerInfo.returnValues['0'][3][2],
             4: response.events.ManufacturerInfo.returnValues['0'][3][3],
         })
+        setVaccinePrice({
+            1: response.events.ManufacturerInfo.returnValues['0'][4],
+            2: response.events.ManufacturerInfo.returnValues['0'][5],
+            3: response.events.ManufacturerInfo.returnValues['0'][6],
+            4: response.events.ManufacturerInfo.returnValues['0'][7],
+        })
         setSignedIn(true)
     }
 
@@ -84,7 +121,8 @@ function Manufacturer(props) {
         if (response.events.Success.returnValues.success) {
             setAvailableStocks({
                 ...availableStocks,
-                [addVaccine]: Number(addQty) + Number(availableStocks[addVaccine]),
+                [addVaccine]:
+                    Number(addQty) + Number(availableStocks[addVaccine]),
             })
         }
     }
@@ -143,6 +181,55 @@ function Manufacturer(props) {
                         <br />
                         <Button onClick={(e) => addStock(e)} variant='primary'>
                             Add
+                        </Button>
+                    </Form.Group>
+                    <h1>Change Stocks Price</h1>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Price of vaccine A</Form.Label>
+                        <Form.Control
+                            onKeyUp={(e) => changePriceA(e.target.value)}
+                            type='number'
+                            value={vaccinePrice['1']}
+                        />
+                        <br />
+                        <Button onClick={(e) => addStock(e)} variant='primary'>
+                            Save
+                        </Button>
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Price of vaccine B</Form.Label>
+                        <Form.Control
+                            onKeyUp={(e) => changePriceB(e.target.value)}
+                            type='number'
+                            value={vaccinePrice['2']}
+                        />
+                        <br />
+                        <Button onClick={(e) => addStock(e)} variant='primary'>
+                            Save
+                        </Button>
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Price of vaccine C</Form.Label>
+                        <Form.Control
+                            onKeyUp={(e) => changePriceC(e.target.value)}
+                            type='number'
+                            value={vaccinePrice['3']}
+                        />
+                        <br />
+                        <Button onClick={(e) => addStock(e)} variant='primary'>
+                            Save
+                        </Button>
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Price of vaccine D</Form.Label>
+                        <Form.Control
+                            onKeyUp={(e) => changePriceD(e.target.value)}
+                            type='number'
+                            value={vaccinePrice['4']}
+                        />
+                        <br />
+                        <Button onClick={(e) => addStock(e)} variant='primary'>
+                            Save
                         </Button>
                     </Form.Group>
                 </div>

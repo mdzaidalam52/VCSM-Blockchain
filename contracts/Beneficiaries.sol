@@ -25,17 +25,17 @@ contract Beneficiaries {
     function beneficiaryFirstVaccine(
         uint256 _aadhar,
         uint256 _vaccine,
-        address _admin
+        Admin _admin
     ) public returns (bool) {
         if (address(beneficiaries[_aadhar]) == address(0)) {
             return false;
         }
-        Beneficiary beneficiary = Beneficiary(beneficiaries[_aadhar]);
-        beneficiary.registerFirstVaccine(_admin, _vaccine);
+        Beneficiary beneficiary = beneficiaries[_aadhar];
+        beneficiary.registerFirstVaccine(_admin, _vaccine, _aadhar);
         return true;
     }
 
-    function beneficiarySecondVaccine(uint256 _aadhar, address _admin)
+    function beneficiarySecondVaccine(uint256 _aadhar, Admin _admin)
         public
         returns (bool)
     {
@@ -43,11 +43,15 @@ contract Beneficiaries {
             return false;
         }
         Beneficiary beneficiary = Beneficiary(beneficiaries[_aadhar]);
-        beneficiary.registerSecondVaccine(_admin);
+        beneficiary.registerSecondVaccine(_aadhar, _admin);
         return true;
     }
 
-    function getBeneficiaryInfo(uint256 _aadhar) public view returns(beneficiaryInfo memory) {
+    function getBeneficiaryInfo(uint256 _aadhar)
+        public
+        view
+        returns (beneficiaryInfo memory)
+    {
         if (address(beneficiaries[_aadhar]) == address(0)) {
             return beneficiaryInfo(10, 10);
         }

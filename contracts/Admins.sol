@@ -3,6 +3,7 @@
 pragma solidity ^0.8.13;
 
 import "./Admin.sol";
+import "./Manufacturer.sol";
 
 contract Admins {
     uint256 admin_center = 1;
@@ -31,17 +32,17 @@ contract Admins {
         address add,
         uint256 _vaccine,
         uint256 _qty,
-        address _manufacturer
+        Manufacturer _manufacturer
     ) public returns (bool) {
         if (address(admins[add]) == address(0)) {
             return false;
         }
         Admin admin = admins[add];
-        admin.makeOrder(_vaccine, _qty, _manufacturer);
-        return true;
+        if (admin.makeOrder(_vaccine, _qty, _manufacturer)) return true;
+        return false;
     }
 
-    function adminVaccinationDone(address add, Beneficiary beneficiary)
+    function adminVaccinationDone(address add, uint _aadhar, Beneficiary beneficiary)
         public
         returns (bool)
     {
@@ -49,7 +50,7 @@ contract Admins {
             return false;
         }
         Admin admin = admins[add];
-        admin.vaccinationDone(address(beneficiary));
+        admin.vaccinationDone(_aadhar, beneficiary);
         return true;
     }
 
@@ -95,5 +96,9 @@ contract Admins {
             Admin.stocks memory registered
         ) = admin.getInfo();
         return adminInfo(addr, center, available, ordered, registered);
+    }
+
+    function getAdmin(address _address) public view returns(Admin){
+        return admins[_address];
     }
 }

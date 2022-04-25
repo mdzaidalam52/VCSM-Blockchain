@@ -20,6 +20,8 @@ contract Actors {
     event AdminInfo(Admins.adminInfo info);
     event AllManufacturersInfo(Manufacturers.manufacturerInfo[] arr);
     event ManufacturerInfo(Manufacturers.manufacturerInfo info);
+    event AllDeliveries(Delivery[] deliveries);
+    event AllOrders();
 
     constructor() {
         owner = msg.sender;
@@ -46,7 +48,12 @@ contract Actors {
         address _manufacturer
     ) public {
         emit Success(
-            admin.adminCreateOrder(msg.sender, _vaccine, _qty, _manufacturer)
+            admin.adminCreateOrder(
+                msg.sender,
+                _vaccine,
+                _qty,
+                manufacturer.getManufacturer(_manufacturer)
+            )
         );
     }
 
@@ -54,6 +61,7 @@ contract Actors {
         emit Success(
             admin.adminVaccinationDone(
                 msg.sender,
+                _aadhar,
                 beneficiary.getBeneficiary(_aadhar)
             )
         );
@@ -65,12 +73,21 @@ contract Actors {
         address _admin
     ) public {
         emit Success(
-            beneficiary.beneficiaryFirstVaccine(_aadhar, _vaccine, _admin)
+            beneficiary.beneficiaryFirstVaccine(
+                _aadhar,
+                _vaccine,
+                admin.getAdmin(_admin)
+            )
         );
     }
 
     function beneficiarySecondVaccine(uint256 _aadhar, address _admin) public {
-        emit Success(beneficiary.beneficiarySecondVaccine(_aadhar, _admin));
+        emit Success(
+            beneficiary.beneficiarySecondVaccine(
+                _aadhar,
+                admin.getAdmin(_admin)
+            )
+        );
     }
 
     function manufacturerAddStock(uint256 _vaccine, uint256 _qty) public {
@@ -112,5 +129,13 @@ contract Actors {
 
     function getManufacturerInfo() public {
         emit ManufacturerInfo(manufacturer.getManufacturerInfo(msg.sender));
+    }
+
+    function getAllDeliveries() public {
+        emit AllDeliveries(manufacturer.getAllDeliveries(msg.sender));
+    }
+
+    function manufacturerSetPrice(uint a, uint b, uint c, uint d) public{
+        manufacturer.setPrice(msg.sender, a, b, c, d);
     }
 }

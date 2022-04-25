@@ -3,6 +3,7 @@
 pragma solidity ^0.8.13;
 
 import "./Manufacturer.sol";
+import "./Manufacturers.sol";
 import "./Beneficiary.sol";
 
 contract Admin {
@@ -11,7 +12,7 @@ contract Admin {
     uint256 centre_no;
     mapping(uint256 => uint256) public available_stock;
     mapping(address => mapping(uint256 => uint256)) public ordered_stocks;
-    mapping(address => uint256) public registered_stock;
+    mapping(uint256 => uint256) public registered_stock;
     mapping(uint256 => uint256) public number_of_ordered_stocks;
     mapping(uint256 => uint256) public number_of_registered_stocks;
     struct stocks {
@@ -31,45 +32,49 @@ contract Admin {
     function makeOrder(
         uint256 vac,
         uint256 qty,
-        address _manufacturer
-    ) public {
-        Manufacturer manuf = Manufacturer(_manufacturer);
-        manuf.receiveOrder(vac, qty, owner);
-        ordered_stocks[_manufacturer][vac] += qty;
-        number_of_ordered_stocks[vac] += qty;
+        Manufacturer _manufacturer
+    ) public returns (bool) {
+        if (_manufacturer.receiveOrder(vac, qty, owner)) {
+            ordered_stocks[address(_manufacturer)][vac] += qty;
+            number_of_ordered_stocks[vac] += qty;
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    function registerBeneficiaryFirstVaccine(
-        address _beneficiary,
-        uint256 _vaccine
-    ) public {
+    function registerBeneficiaryFirstVaccine(uint256 _aadhar, uint256 _vaccine)
+        public
+    {
         require(available_stock[_vaccine] > 0, "Insufficient Stocks");
         available_stock[_vaccine] -= 1;
         totalVaccines -= 1;
-        registered_stock[_beneficiary] = _vaccine;
+        registered_stock[_aadhar] = _vaccine;
         number_of_registered_stocks[_vaccine]++;
     }
 
-    function registerBeneficiarySecondVaccine(address _beneficiary) public {
-        Beneficiary beneficiary = Beneficiary(_beneficiary);
+    function registerBeneficiarySecondVaccine(uint _aadhar, Beneficiary _beneficiary) public {
         require(
-            beneficiary.getNumOfDoses() == 0,
+            _beneficiary.getNumOfDoses() == 0,
             "This cannot be the beneficiary second vaccine"
         );
-        uint256 _vaccine = beneficiary.getVaccineType();
+        uint256 _vaccine = _beneficiary.getVaccineType();
         require(available_stock[_vaccine] > 0, "Insufficient Stocks");
         available_stock[_vaccine] -= 1;
         totalVaccines -= 1;
         number_of_registered_stocks[_vaccine]++;
     }
 
-    function vaccinationDone(address _beneficiary) public {
-        Beneficiary beneficiary = Beneficiary(_beneficiary);
-        beneficiary.increaseNumOfDoses();
-        if (beneficiary.getNumOfDoses() == 1)
-            beneficiary.setVaccineType(registered_stock[_beneficiary]);
-        registered_stock[_beneficiary] = 0;
-        number_of_registered_stocks[beneficiary.getVaccineType()]--;
+    function getCenterNo() public view returns(uint){
+        return centre_no;
+    }
+
+    function vaccinationDone(uint _aadhar, Beneficiary _beneficiary) public {
+        _beneficiary.increaseNumOfDoses();
+        if (_beneficiary.getNumOfDoses() == 1)
+            _beneficiary.setVaccineType(registered_stock[_aadhar]);
+        registered_stock[_aadhar] = 0;
+        number_of_registered_stocks[_beneficiary.getVaccineType()]--;
     }
 
     function receivedVaccine(

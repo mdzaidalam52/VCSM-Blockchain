@@ -13,9 +13,11 @@ contract Manufacturers {
         Manufacturer.stocks available;
         Manufacturer.stocks ordered;
         Manufacturer.stocks out_for_delivery;
+        uint256 price_a;
+        uint256 price_b;
+        uint256 price_c;
+        uint256 price_d;
     }
-
-    
 
     function createManufacturer(address add) public returns (bool) {
         if (address(manufacturers[add]) != address(0)) {
@@ -66,13 +68,21 @@ contract Manufacturers {
                 address addr,
                 Manufacturer.stocks memory available,
                 Manufacturer.stocks memory ordered,
-                Manufacturer.stocks memory out_for_delivery
+                Manufacturer.stocks memory out_for_delivery,
+                uint256 a,
+                uint256 b,
+                uint256 c,
+                uint256 d
             ) = manufacturerArray[i].getInfo();
             manufacturerInfo memory info = manufacturerInfo(
                 addr,
                 available,
                 ordered,
-                out_for_delivery
+                out_for_delivery,
+                a,
+                b,
+                c,
+                d
             );
             arrays[i] = info;
         }
@@ -90,7 +100,11 @@ contract Manufacturers {
                     address(0),
                     Manufacturer.stocks(0, 0, 0, 0),
                     Manufacturer.stocks(0, 0, 0, 0),
-                    Manufacturer.stocks(0, 0, 0, 0)
+                    Manufacturer.stocks(0, 0, 0, 0),
+                    0,
+                    0,
+                    0,
+                    0
                 );
         }
         Manufacturer man = manufacturers[add];
@@ -98,8 +112,48 @@ contract Manufacturers {
             address addr,
             Manufacturer.stocks memory available,
             Manufacturer.stocks memory ordered,
-            Manufacturer.stocks memory out_for_delivery
+            Manufacturer.stocks memory out_for_delivery,
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d
         ) = man.getInfo();
-        return manufacturerInfo(addr, available, ordered, out_for_delivery);
+        return
+            manufacturerInfo(
+                addr,
+                available,
+                ordered,
+                out_for_delivery,
+                a,
+                b,
+                c,
+                d
+            );
+    }
+
+    function getManufacturer(address _address)
+        public
+        view
+        returns (Manufacturer)
+    {
+        return manufacturers[_address];
+    }
+
+    function getAllDeliveries(address _address)
+        public
+        view
+        returns (Delivery[] memory)
+    {
+        return manufacturers[_address].getAllDeliveries();
+    }
+
+    function setPrice(
+        address _address,
+        uint256 a,
+        uint256 b,
+        uint256 c,
+        uint256 d
+    ) public {
+        return manufacturers[_address].setPrice(a, b, c, d);
     }
 }
