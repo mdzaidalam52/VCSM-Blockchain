@@ -60,13 +60,14 @@ function Manufacturer(props) {
     const changeVaccinePrice = async () => {
         const response = await props.values.contract.methods
             .manufacturerSetPrice(
-                vaccinePrice['1'] * 1000000000,
-                vaccinePrice['2'] * 1000000000,
-                vaccinePrice['3'] * 1000000000,
-                vaccinePrice['4'] * 1000000000
+                Number(vaccinePrice['1']),
+                Number(vaccinePrice['2']),
+                Number(vaccinePrice['3']),
+                Number(vaccinePrice['4'])
             )
             .send({ from: props.values.accounts[0] })
         console.log(response)
+        // console.log(vaccinePrice)
     }
 
     const signIn = async (e) => {
@@ -189,10 +190,13 @@ function Manufacturer(props) {
                         <Form.Control
                             onKeyUp={(e) => changePriceA(e.target.value)}
                             type='number'
-                            defaultValue={vaccinePrice['1']/1000000000}
+                            defaultValue={vaccinePrice['1']}
                         />
                         <br />
-                        <Button onClick={(e) => changeVaccinePrice(e)} variant='primary'>
+                        <Button
+                            onClick={(e) => changeVaccinePrice(e)}
+                            variant='primary'
+                        >
                             Save
                         </Button>
                     </Form.Group>
@@ -201,10 +205,13 @@ function Manufacturer(props) {
                         <Form.Control
                             onKeyUp={(e) => changePriceB(e.target.value)}
                             type='number'
-                            defaultValue={vaccinePrice['2']/1000000000}
+                            defaultValue={vaccinePrice['2']}
                         />
                         <br />
-                        <Button onClick={(e) => changeVaccinePrice(e)} variant='primary'>
+                        <Button
+                            onClick={(e) => changeVaccinePrice(e)}
+                            variant='primary'
+                        >
                             Save
                         </Button>
                     </Form.Group>
@@ -213,10 +220,13 @@ function Manufacturer(props) {
                         <Form.Control
                             onKeyUp={(e) => changePriceC(e.target.value)}
                             type='number'
-                            defaultValue={vaccinePrice['3']/1000000000}
+                            defaultValue={vaccinePrice['3']}
                         />
                         <br />
-                        <Button onClick={(e) => changeVaccinePrice(e)} variant='primary'>
+                        <Button
+                            onClick={(e) => changeVaccinePrice(e)}
+                            variant='primary'
+                        >
                             Save
                         </Button>
                     </Form.Group>
@@ -225,10 +235,13 @@ function Manufacturer(props) {
                         <Form.Control
                             onKeyUp={(e) => changePriceD(e.target.value)}
                             type='number'
-                            defaultValue={vaccinePrice['4']/1000000000}
+                            defaultValue={vaccinePrice['4']}
                         />
                         <br />
-                        <Button onClick={(e) => changeVaccinePrice(e)} variant='primary'>
+                        <Button
+                            onClick={(e) => changeVaccinePrice(e)}
+                            variant='primary'
+                        >
                             Save
                         </Button>
                     </Form.Group>
