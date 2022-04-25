@@ -170,51 +170,59 @@ function Admin(props) {
             <>
                 <div>
                     <h1>Center No: {center}</h1>
-                    <h1>Available Stocks</h1>
-                    {table(availableStocks)}
-                    <h1>Ordered Stocks</h1>
-                    {table(orderedStocks)}
-
-                    <h1>Registered Stocks</h1>
-                    {table(registeredStocks)}
-
-                    <h1>Order Vaccines</h1>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Select Manufacturer</Form.Label>
-                        <Form.Select
-                            onSelect={(e) =>
-                                setManufacturerSelected(e.target.value)
-                            }
-                        >
-                            {manufacturerList()}
-                        </Form.Select>
-                    </Form.Group>
-                    {table(allManufacturers[Number(manufacturerSelected)])}
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Select Vaccine Type</Form.Label>
-                        <Form.Select
-                            onChange={(e) => setOrderVaccine(e.target.value)}
-                        >
-                            <option value={'1'}>A</option>
-                            <option value={'2'}>B</option>
-                            <option value={'3'}>C</option>
-                            <option value={'4'}>D</option>
-                        </Form.Select>
-                        <Form.Label>Quantity</Form.Label>
-                        <Form.Control
-                            onKeyUp={(e) => setOrderQty(e.target.value)}
-                            type='number'
-                            placeholder='Enter Quantity of Vaccine'
-                        />
-                        <br />
-                        <Button
-                            onClick={(e) => orderStock(e)}
-                            variant='primary'
-                        >
-                            Add
-                        </Button>
-                        <h4>{orderMsg}</h4>
-                    </Form.Group>
+                    <div className='card'>
+                        <h1>Available Stocks</h1>
+                        {table(availableStocks)}
+                    </div>
+                    <div className='card'>
+                        <h1>Ordered Stocks</h1>
+                        {table(orderedStocks)}
+                    </div>
+                    <div className='card'>
+                        <h1>Registered Stocks</h1>
+                        {table(registeredStocks)}
+                    </div>
+                    <div className='card'>
+                        <h1>Order Vaccines</h1>
+                        <Form.Group className='mb-3'>
+                            <Form.Label>Select Manufacturer</Form.Label>
+                            <Form.Select
+                                onSelect={(e) =>
+                                    setManufacturerSelected(e.target.value)
+                                }
+                            >
+                                {manufacturerList()}
+                            </Form.Select>
+                        </Form.Group>
+                        {table(allManufacturers[Number(manufacturerSelected)])}
+                        <Form.Group className='mb-3'>
+                            <Form.Label>Select Vaccine Type</Form.Label>
+                            <Form.Select
+                                onChange={(e) =>
+                                    setOrderVaccine(e.target.value)
+                                }
+                            >
+                                <option value={'1'}>A</option>
+                                <option value={'2'}>B</option>
+                                <option value={'3'}>C</option>
+                                <option value={'4'}>D</option>
+                            </Form.Select>
+                            <Form.Label>Quantity</Form.Label>
+                            <Form.Control
+                                onKeyUp={(e) => setOrderQty(e.target.value)}
+                                type='number'
+                                placeholder='Enter Quantity of Vaccine'
+                            />
+                            <br />
+                            <Button
+                                onClick={(e) => orderStock(e)}
+                                variant='primary'
+                            >
+                                Add
+                            </Button>
+                            <h4>{orderMsg}</h4>
+                        </Form.Group>
+                    </div>
                 </div>
             </>
         )

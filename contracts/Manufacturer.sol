@@ -3,25 +3,35 @@
 pragma solidity ^0.8.13;
 
 import "./Delivery.sol";
+import "./Admins.sol";
 
 contract Manufacturer {
     address public owner;
 
-    uint price_a;
-    uint price_b;
-    uint price_c;
-    uint price_d;
+    uint256 price_a;
+    uint256 price_b;
+    uint256 price_c;
+    uint256 price_d;
 
-    struct stocks{
-        uint a;
-        uint b;
-        uint c;
-        uint d;
+    struct stocks {
+        uint256 a;
+        uint256 b;
+        uint256 c;
+        uint256 d;
     }
 
-    mapping(address => mapping(uint256 => uint256)) ordered_stocks;
-    mapping(uint256 => uint) available_stocks;
-    mapping(address => mapping(uint256 => uint256)) out_for_delivery;    
+    struct orderInfo {
+        uint256 vaccine;
+        uint256 qty;
+        address admin;
+    }
+
+    // mapping(address => mapping(uint256 => uint256)) ordered_stocks;
+    orderInfo[] orders;
+    uint256 number_of_orders;
+    uint256 number_of_deliveries;
+    mapping(uint256 => uint256) available_stocks;
+    mapping(address => mapping(uint256 => uint256)) out_for_delivery;
     mapping(uint256 => uint256) public number_of_ordered_stocks;
     mapping(uint256 => uint256) public number_of_out_for_delivery;
     Delivery[] deliveries;
@@ -34,45 +44,78 @@ contract Manufacturer {
         uint256 vac,
         uint256 qty,
         address _admin
-    ) public returns(bool){
-        if(available_stocks[vac] >= qty){
-            ordered_stocks[_admin][vac] += qty;
+    ) public returns (bool) {
+        if (available_stocks[vac] >= qty) {
+            if (orders.length == number_of_orders)
+                orders.push(orderInfo(vac, qty, _admin));
+            else orders[number_of_orders] = orderInfo(vac, qty, _admin);
+            number_of_orders++;
             number_of_ordered_stocks[vac] += qty;
             available_stocks[vac] -= qty;
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    function createDelivery(
-        uint256 vac,
-        uint256 qty,
-        address _admin
-    ) public {
-        require(ordered_stocks[_admin][vac] >= qty, "Order placed is less");
-        ordered_stocks[_admin][vac] -= qty;
-        number_of_ordered_stocks[vac] -= qty;
+    function removeOrders(uint256 ind) public {
+        for (uint256 i = ind; i < number_of_orders - 1; i++) {
+            orders[i] = orders[i + 1];
+        }
+        delete orders[orders.length - 1];
+        number_of_orders--;
+    }
+
+    function createDelivery(uint256 ind) public {
+        uint256 qty = orders[ind].qty;
+        uint256 vac = orders[ind].vaccine;
+        address _admin = orders[ind].admin;
+        removeOrders(ind);
         Delivery delivery = new Delivery(owner, _admin, vac, qty);
         out_for_delivery[address(delivery)][vac] = qty;
         number_of_out_for_delivery[vac] += qty;
         deliveries.push(delivery);
+        number_of_deliveries++;
     }
 
-    function finishDelivery(
-        address delivery,
-        uint256 vac,
-        uint256 qty
-    ) public {
-        out_for_delivery[delivery][vac] -= qty;
-        number_of_out_for_delivery[vac] -= qty;
+    function removeDelivery(uint256 ind) public {
+        for (uint256 i = ind; i < number_of_deliveries - 1; i++) {
+            deliveries[ind] = deliveries[ind + 1];
+        }
+        delete deliveries[number_of_deliveries - 1];
+        number_of_deliveries--;
+    }
+
+    function finishDelivery(uint256 ind, Admins admin) public returns (bool) {
+        Delivery delivery = deliveries[ind];
+        Delivery.deliveryInfo memory info = delivery.getInfo();
+        out_for_delivery[address(delivery)][info.vac] -= info.qty;
+        number_of_out_for_delivery[info.vac] -= info.qty;
+        delivery.orderReached(admin);
+        removeDelivery(ind);
+        return true;
     }
 
     function addStocks(uint256 vac, uint256 qty) public {
         available_stocks[vac] += qty;
     }
 
-    function getInfo() public view returns(address, stocks memory, stocks memory, stocks memory, uint a, uint b, uint c, uint d){
+    function getInfo()
+        public
+        view
+        returns (
+            address,
+            stocks memory,
+            stocks memory,
+            stocks memory,
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d,
+            orderInfo[] memory order,
+            Delivery.deliveryInfo[] memory delivery
+        )
+    {
         return (
             owner,
             stocks(
@@ -96,19 +139,43 @@ contract Manufacturer {
             price_a,
             price_b,
             price_c,
-            price_d
-
+            price_d,
+            getAllOrders(),
+            getAllDeliveries()
         );
     }
 
-    function getAllDeliveries() public view returns(Delivery[] memory){
-        return deliveries;
-    }
-
-    function setPrice(uint a, uint b, uint c, uint d) public {
+    function setPrice(
+        uint256 a,
+        uint256 b,
+        uint256 c,
+        uint256 d
+    ) public {
         price_a = a;
         price_b = b;
         price_c = c;
         price_d = d;
+    }
+
+    function getAllOrders() public view returns (orderInfo[] memory) {
+        orderInfo[] memory arr = new orderInfo[](number_of_orders);
+        for (uint256 i = 0; i < number_of_orders; i++) {
+            arr[i] = orders[i];
+        }
+        return arr;
+    }
+
+    function getAllDeliveries()
+        public
+        view
+        returns (Delivery.deliveryInfo[] memory)
+    {
+        Delivery.deliveryInfo[] memory arr = new Delivery.deliveryInfo[](
+            number_of_deliveries
+        );
+        for (uint256 i = 0; i < number_of_deliveries; i++) {
+            arr[i] = deliveries[i].getInfo();
+        }
+        return arr;
     }
 }

@@ -29,3 +29,11 @@
 .navbar{
   margin-bottom: 30px;
 }
+
+.card{
+  background-color: white;
+  border-radius: 15px;
+  padding: 15px;
+  margin: 15px;
+  box-shadow: 1px 1px 10px #282c34;
+}

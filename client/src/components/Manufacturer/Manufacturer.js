@@ -31,6 +31,8 @@ function Manufacturer(props) {
         3: 0,
         4: 0,
     })
+    const [ordersReceived, setOrdersReceived] = useState([])
+    const [deliveries, setDeliveries] = useState([])
 
     const register = async (e) => {
         e.preventDefault()
@@ -107,6 +109,8 @@ function Manufacturer(props) {
             3: response.events.ManufacturerInfo.returnValues['0'][6],
             4: response.events.ManufacturerInfo.returnValues['0'][7],
         })
+        setOrdersReceived(response.events.ManufacturerInfo.returnValues['0'][8])
+        setDeliveries(response.events.ManufacturerInfo.returnValues['0'][9])
         setSignedIn(true)
     }
 
@@ -128,7 +132,22 @@ function Manufacturer(props) {
         }
     }
 
+    const createDelivery = async (ind) => {
+        const response = await props.values.contract.methods.manufacturerCreateDelivery(ind).send({from: props.values.accounts[0]});
+        console.log(response)
+        const del = [];
+        for(let i = 0; i < deliveries.length; i++){
+            if(i == ind)
+                continue;
+            del.push(deliveries[i])
+        }
+        setDeliveries(del)
+        console.log(deliveries)
+    }
+    const finishDelivery = (ind) => {}
+
     const table = (data) => {
+        let k = 0
         return (
             <Table>
                 <thead>
@@ -151,100 +170,136 @@ function Manufacturer(props) {
         )
     }
 
+    const deliveryTable = (data, order) => {
+        const fun = order ? createDelivery : finishDelivery
+        return (
+            <Table>
+                <thead>
+                    <tr>
+                        <td>Admin Address</td>
+                        <td>Vaccine Type</td>
+                        <td>Stocks</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map((delivery, ind) => {
+                        return (
+                            <tr>
+                                <td>{delivery[2]}</td>
+                                <td>{delivery[0]}</td>
+                                <td>{delivery[1]}</td>
+                                <td>
+                                    <Button key={ind} onClick={e => fun(ind)}>
+                                        {order
+                                            ? 'Create Order'
+                                            : 'Finish Delivery'}
+                                    </Button>
+                                </td>
+                            </tr>
+                        )
+                    })}
+                </tbody>
+            </Table>
+        )
+    }
+
     const userProfile = () => {
         return (
             <>
                 <div>
-                    <h1>Available Stocks</h1>
-                    {table(availableStocks)}
-                    <h1>Ordered Stocks</h1>
-                    {table(orderedStocks)}
-                    <h1>Out for Delivery Stocks</h1>
-                    {table(outForDeliveryStocks)}
-                    <h1>Add Stocks</h1>
-                    <h3>{addMsg}</h3>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Select Vaccine Type</Form.Label>
-                        <Form.Select
-                            onChange={(e) => setAddVaccine(e.target.value)}
-                        >
-                            <option value={'1'}>A</option>
-                            <option value={'2'}>B</option>
-                            <option value={'3'}>C</option>
-                            <option value={'4'}>D</option>
-                        </Form.Select>
-                        <Form.Label>Quantity</Form.Label>
-                        <Form.Control
-                            onKeyUp={(e) => setAddQty(e.target.value)}
-                            type='number'
-                            placeholder='Enter Quantity of Vaccine'
-                        />
-                        <br />
-                        <Button onClick={(e) => addStock(e)} variant='primary'>
-                            Add
-                        </Button>
-                    </Form.Group>
-                    <h1>Change Stocks Price</h1>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Price of vaccine A</Form.Label>
-                        <Form.Control
-                            onKeyUp={(e) => changePriceA(e.target.value)}
-                            type='number'
-                            defaultValue={vaccinePrice['1']}
-                        />
-                        <br />
-                        <Button
-                            onClick={(e) => changeVaccinePrice(e)}
-                            variant='primary'
-                        >
-                            Save
-                        </Button>
-                    </Form.Group>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Price of vaccine B</Form.Label>
-                        <Form.Control
-                            onKeyUp={(e) => changePriceB(e.target.value)}
-                            type='number'
-                            defaultValue={vaccinePrice['2']}
-                        />
-                        <br />
-                        <Button
-                            onClick={(e) => changeVaccinePrice(e)}
-                            variant='primary'
-                        >
-                            Save
-                        </Button>
-                    </Form.Group>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Price of vaccine C</Form.Label>
-                        <Form.Control
-                            onKeyUp={(e) => changePriceC(e.target.value)}
-                            type='number'
-                            defaultValue={vaccinePrice['3']}
-                        />
-                        <br />
-                        <Button
-                            onClick={(e) => changeVaccinePrice(e)}
-                            variant='primary'
-                        >
-                            Save
-                        </Button>
-                    </Form.Group>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Price of vaccine D</Form.Label>
-                        <Form.Control
-                            onKeyUp={(e) => changePriceD(e.target.value)}
-                            type='number'
-                            defaultValue={vaccinePrice['4']}
-                        />
-                        <br />
-                        <Button
-                            onClick={(e) => changeVaccinePrice(e)}
-                            variant='primary'
-                        >
-                            Save
-                        </Button>
-                    </Form.Group>
+                    <div className='card'>
+                        <h1>Available Stocks</h1>
+                        {table(availableStocks)}
+                    </div>
+                    <div className='card'>
+                        <h1>Ordered Stocks</h1>
+                        {table(orderedStocks)}
+                    </div>
+                    <div className='card'>
+                        <h1>Out for Delivery Stocks</h1>
+                        {table(outForDeliveryStocks)}
+                    </div>
+                    <div className='card'>
+                        <h1>Create Delivery</h1>
+                        {deliveryTable(ordersReceived, true)}
+                    </div>
+                    <div className='card'>
+                        <h1>Finish Delivery</h1>
+                        {deliveryTable(deliveries, false)}
+                    </div>
+                    <div className='card'>
+                        <h1>Add Stocks</h1>
+                        <h3>{addMsg}</h3>
+                        <Form.Group className='mb-3'>
+                            <Form.Label>Select Vaccine Type</Form.Label>
+                            <Form.Select
+                                onChange={(e) => setAddVaccine(e.target.value)}
+                            >
+                                <option value={'1'}>A</option>
+                                <option value={'2'}>B</option>
+                                <option value={'3'}>C</option>
+                                <option value={'4'}>D</option>
+                            </Form.Select>
+                            <Form.Label>Quantity</Form.Label>
+                            <Form.Control
+                                onKeyUp={(e) => setAddQty(e.target.value)}
+                                type='number'
+                                placeholder='Enter Quantity of Vaccine'
+                            />
+                            <br />
+                            <Button
+                                onClick={(e) => addStock(e)}
+                                variant='primary'
+                            >
+                                Add
+                            </Button>
+                        </Form.Group>
+                    </div>
+                    <div className='card'>
+                        <h1>Change Stocks Price</h1>
+                        <Form.Group className='mb-3'>
+                            <Form.Label>Price of vaccine A</Form.Label>
+                            <Form.Control
+                                onKeyUp={(e) => changePriceA(e.target.value)}
+                                type='number'
+                                defaultValue={vaccinePrice['1']}
+                            />
+                            <br />
+                        </Form.Group>
+                        <Form.Group className='mb-3'>
+                            <Form.Label>Price of vaccine B</Form.Label>
+                            <Form.Control
+                                onKeyUp={(e) => changePriceB(e.target.value)}
+                                type='number'
+                                defaultValue={vaccinePrice['2']}
+                            />
+                            <br />
+                        </Form.Group>
+                        <Form.Group className='mb-3'>
+                            <Form.Label>Price of vaccine C</Form.Label>
+                            <Form.Control
+                                onKeyUp={(e) => changePriceC(e.target.value)}
+                                type='number'
+                                defaultValue={vaccinePrice['3']}
+                            />
+                            <br />
+                        </Form.Group>
+                        <Form.Group className='mb-3'>
+                            <Form.Label>Price of vaccine D</Form.Label>
+                            <Form.Control
+                                onKeyUp={(e) => changePriceD(e.target.value)}
+                                type='number'
+                                defaultValue={vaccinePrice['4']}
+                            />
+                            <br />
+                            <Button
+                                onClick={(e) => changeVaccinePrice(e)}
+                                variant='primary'
+                            >
+                                Save
+                            </Button>
+                        </Form.Group>
+                    </div>
                 </div>
             </>
         )

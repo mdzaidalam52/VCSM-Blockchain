@@ -6,6 +6,7 @@ import "./Manufacturers.sol";
 import "./Beneficiaries.sol";
 import "./Admins.sol";
 import "./Delivery.sol";
+import "./Manufacturer.sol";
 
 contract Actors {
     Manufacturers manufacturer;
@@ -20,8 +21,7 @@ contract Actors {
     event AdminInfo(Admins.adminInfo info);
     event AllManufacturersInfo(Manufacturers.manufacturerInfo[] arr);
     event ManufacturerInfo(Manufacturers.manufacturerInfo info);
-    event AllDeliveries(Delivery[] deliveries);
-    event AllOrders();
+    event AllManufacturerOrders(Manufacturer.orderInfo[] info);
 
     constructor() {
         owner = msg.sender;
@@ -96,19 +96,12 @@ contract Actors {
         );
     }
 
-    function manufacturerCreateDelivery(
-        uint256 vac,
-        uint256 qty,
-        address _admin
-    ) public {
-        emit Success(
-            manufacturer.manufacturerCreateDelivery(
-                msg.sender,
-                vac,
-                qty,
-                _admin
-            )
-        );
+    function manufacturerCreateDelivery(uint256 ind) public {
+        emit Success(manufacturer.manufacturerCreateDelivery(msg.sender, ind));
+    }
+
+    function manufacturerFinishDelivery(uint256 ind) public {
+        emit Success(manufacturer.manufacturerFinishDelivery(msg.sender, ind, admin));
     }
 
     function getAllAdmins() public {
@@ -131,11 +124,16 @@ contract Actors {
         emit ManufacturerInfo(manufacturer.getManufacturerInfo(msg.sender));
     }
 
-    function getAllDeliveries() public {
-        emit AllDeliveries(manufacturer.getAllDeliveries(msg.sender));
+    function manufacturerSetPrice(
+        uint256 a,
+        uint256 b,
+        uint256 c,
+        uint256 d
+    ) public {
+        manufacturer.setPrice(msg.sender, a, b, c, d);
     }
 
-    function manufacturerSetPrice(uint a, uint b, uint c, uint d) public{
-        manufacturer.setPrice(msg.sender, a, b, c, d);
+    function getAllOrders() public {
+        emit AllManufacturerOrders(manufacturer.getAllOrders(msg.sender));
     }
 }

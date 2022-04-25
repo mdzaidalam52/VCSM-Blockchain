@@ -3,6 +3,7 @@
 pragma solidity ^0.8.13;
 
 import "./Manufacturer.sol";
+import "./Delivery.sol";
 
 contract Manufacturers {
     mapping(address => Manufacturer) public manufacturers;
@@ -17,6 +18,8 @@ contract Manufacturers {
         uint256 price_b;
         uint256 price_c;
         uint256 price_d;
+        Manufacturer.orderInfo[] manufacturerOrders;
+        Delivery.deliveryInfo[] manufacturerDeliveries;
     }
 
     function createManufacturer(address add) public returns (bool) {
@@ -41,17 +44,16 @@ contract Manufacturers {
         return true;
     }
 
-    function manufacturerCreateDelivery(
-        address add,
-        uint256 vac,
-        uint256 qty,
-        address _admin
-    ) public returns (bool) {
+    function manufacturerCreateDelivery(address add, uint256 ind)
+        public
+        returns (bool)
+    {
         if (address(manufacturers[add]) == address(0)) {
             return false;
         }
         Manufacturer manufacturer = manufacturers[add];
-        manufacturer.createDelivery(vac, qty, _admin);
+        manufacturer.createDelivery(ind);
+        // manufacturer.createDelivery(vac, qty, _admin);
         return true;
     }
 
@@ -72,7 +74,9 @@ contract Manufacturers {
                 uint256 a,
                 uint256 b,
                 uint256 c,
-                uint256 d
+                uint256 d,
+                Manufacturer.orderInfo[] memory manOrder,
+                Delivery.deliveryInfo[] memory manDelivery
             ) = manufacturerArray[i].getInfo();
             manufacturerInfo memory info = manufacturerInfo(
                 addr,
@@ -82,11 +86,21 @@ contract Manufacturers {
                 a,
                 b,
                 c,
-                d
+                d,
+                manOrder,
+                manDelivery
             );
             arrays[i] = info;
         }
         return arrays;
+    }
+
+    function manufacturerFinishDelivery(
+        address _address,
+        uint256 ind,
+        Admins admin
+    ) public returns (bool) {
+        return manufacturers[_address].finishDelivery(ind, admin);
     }
 
     function getManufacturerInfo(address add)
@@ -95,6 +109,10 @@ contract Manufacturers {
         returns (manufacturerInfo memory)
     {
         if (address(manufacturers[add]) == address(0)) {
+            Manufacturer.orderInfo[] memory arr = new Manufacturer.orderInfo[](
+                1
+            );
+            Delivery.deliveryInfo[] memory ar = new Delivery.deliveryInfo[](1);
             return
                 manufacturerInfo(
                     address(0),
@@ -104,7 +122,9 @@ contract Manufacturers {
                     0,
                     0,
                     0,
-                    0
+                    0,
+                    arr,
+                    ar
                 );
         }
         Manufacturer man = manufacturers[add];
@@ -116,7 +136,9 @@ contract Manufacturers {
             uint256 a,
             uint256 b,
             uint256 c,
-            uint256 d
+            uint256 d,
+            Manufacturer.orderInfo[] memory manOrder,
+            Delivery.deliveryInfo[] memory manDelivery
         ) = man.getInfo();
         return
             manufacturerInfo(
@@ -127,7 +149,9 @@ contract Manufacturers {
                 a,
                 b,
                 c,
-                d
+                d,
+                manOrder,
+                manDelivery
             );
     }
 
@@ -139,14 +163,6 @@ contract Manufacturers {
         return manufacturers[_address];
     }
 
-    function getAllDeliveries(address _address)
-        public
-        view
-        returns (Delivery[] memory)
-    {
-        return manufacturers[_address].getAllDeliveries();
-    }
-
     function setPrice(
         address _address,
         uint256 a,
@@ -155,5 +171,22 @@ contract Manufacturers {
         uint256 d
     ) public {
         return manufacturers[_address].setPrice(a, b, c, d);
+    }
+
+    function getAllOrders(address _address)
+        public
+        view
+        returns (Manufacturer.orderInfo[] memory)
+    {
+        Manufacturer manufacturer = getManufacturer(_address);
+        return (manufacturer.getAllOrders());
+    }
+
+    function getAllDeliveries(address _address)
+        public
+        view
+        returns (Delivery.deliveryInfo[] memory)
+    {
+        return manufacturers[_address].getAllDeliveries();
     }
 }
