@@ -32,7 +32,7 @@ function Beneficiary(props) {
         const response = await props.values.contract.methods
             .getBeneficiaryInfo(Number(aadhar))
             .send({ from: props.values.accounts[0] })
-        if (response.events.BeneficiaryInfo.returnValues.info[1] == 10) {
+        if (response.events.BeneficiaryInfo.returnValues.info[1] === 10) {
             setMsg('This Aadhar is not registered with us')
             return
         }
@@ -88,8 +88,7 @@ function Beneficiary(props) {
         else return null
     }
 
-    const getInfoAdmin = (center) => {
-    }
+    const getInfoAdmin = (center) => {}
 
     const changeCenterNumber = (e) => {
         setCenterNumber(e.target.value)
@@ -100,8 +99,12 @@ function Beneficiary(props) {
     }
 
     const adminList = () => {
-        return adminArray.map(admin => {
-            return <option value={admin.center_no} key={admin.center_no}>{admin.center_no}</option>
+        return adminArray.map((admin) => {
+            return (
+                <option value={admin.center_no} key={admin.center_no}>
+                    {admin.center_no}
+                </option>
+            )
         })
     }
     const userProfile = () => {
@@ -113,9 +116,7 @@ function Beneficiary(props) {
                     <Form.Group className='mb-3'>
                         <Form.Label>Center Number</Form.Label>
                         <Form.Select
-                            onSelect={(e) =>
-                                setCenterNumber(e.target.value)
-                            }
+                            onSelect={(e) => setCenterNumber(e.target.value)}
                         >
                             {adminList()}
                         </Form.Select>

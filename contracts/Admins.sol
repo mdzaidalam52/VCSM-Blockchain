@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 
 import "./Admin.sol";
 import "./Manufacturer.sol";
+import "./Beneficiary.sol";
 
 contract Admins {
     uint256 admin_center = 1;

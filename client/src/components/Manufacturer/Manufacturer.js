@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Form, Button, Table } from 'react-bootstrap'
 
 function Manufacturer(props) {
@@ -133,18 +133,44 @@ function Manufacturer(props) {
     }
 
     const createDelivery = async (ind) => {
-        const response = await props.values.contract.methods.manufacturerCreateDelivery(ind).send({from: props.values.accounts[0]});
+        const response = await props.values.contract.methods
+            .manufacturerCreateDelivery(ind)
+            .send({ from: props.values.accounts[0] })
         console.log(response)
-        const del = [];
-        for(let i = 0; i < deliveries.length; i++){
-            if(i == ind)
-                continue;
-            del.push(deliveries[i])
+        if(response.events.Success.returnValues.success){
+            const orders = []
+            const deli = []
+            const data = ordersReceived[ind]
+            for(let i = 0; i < ordersReceived.length; i++){
+                if(i != ind) orders.push(ordersReceived[i])
+            }
+            setOrderedStocks(orders)
+            for(let i = 0; i < deliveries.length; i++){
+                deli.push(deliveries[i])
+            }
+            deli.push(data)
+            setDeliveries(deli)
         }
-        setDeliveries(del)
-        console.log(deliveries)
     }
-    const finishDelivery = (ind) => {}
+
+    useEffect(() => {
+        console.log('hey', deliveries)
+        console.log('hey', orderedStocks)
+    }, [deliveries, orderedStocks])
+    const finishDelivery = async (ind) => {
+        console.log(ind)
+        const response = await props.values.contract.methods
+            .manufacturerFinishDelivery(ind)
+            .send({ from: props.values.accounts[0] })
+        console.log(response)
+        if (response.events.Success.returnValues.success) {
+            const fin = []
+            for (let i = 0; i < outForDeliveryStocks.length; i++) {
+                if (i != ind) fin.push(outForDeliveryStocks)
+            }
+            setDeliveries(fin)
+        }
+    }
 
     const table = (data) => {
         let k = 0
@@ -189,7 +215,7 @@ function Manufacturer(props) {
                                 <td>{delivery[0]}</td>
                                 <td>{delivery[1]}</td>
                                 <td>
-                                    <Button key={ind} onClick={e => fun(ind)}>
+                                    <Button key={ind} onClick={(e) => fun(ind)}>
                                         {order
                                             ? 'Create Order'
                                             : 'Finish Delivery'}

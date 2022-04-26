@@ -80,7 +80,7 @@ contract Manufacturer {
 
     function removeDelivery(uint256 ind) public {
         for (uint256 i = ind; i < number_of_deliveries - 1; i++) {
-            deliveries[ind] = deliveries[ind + 1];
+            deliveries[i] = deliveries[i + 1];
         }
         delete deliveries[number_of_deliveries - 1];
         number_of_deliveries--;

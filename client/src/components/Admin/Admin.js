@@ -47,7 +47,7 @@ function Admin(props) {
             .getAdminInfo()
             .send({ from: props.values.accounts[0] })
         if (
-            response.events.AdminInfo.returnValues['0'][0] ==
+            response.events.AdminInfo.returnValues['0'][0] ===
             '0x0000000000000000000000000000000000000000'
         ) {
             setMsg('You are not registered with us')
@@ -94,26 +94,28 @@ function Admin(props) {
     }
 
     const table = (data) => {
-        return (
-            <Table>
-                <thead>
-                    <tr>
-                        <th>Vaccine A</th>
-                        <th>Vaccine B</th>
-                        <th>Vaccine C</th>
-                        <th>Vaccine D</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{data['1']}</td>
-                        <td>{data['2']}</td>
-                        <td>{data['3']}</td>
-                        <td>{data['4']}</td>
-                    </tr>
-                </tbody>
-            </Table>
-        )
+        if (data)
+            return (
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Vaccine A</th>
+                            <th>Vaccine B</th>
+                            <th>Vaccine C</th>
+                            <th>Vaccine D</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{data['1']}</td>
+                            <td>{data['2']}</td>
+                            <td>{data['3']}</td>
+                            <td>{data['4']}</td>
+                        </tr>
+                    </tbody>
+                </Table>
+            )
+        return null
     }
 
     const manufacturerList = () => {

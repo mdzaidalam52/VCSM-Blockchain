@@ -11,7 +11,6 @@ contract Admin {
 
     uint256 centre_no;
     mapping(uint256 => uint256) public available_stock;
-    mapping(address => mapping(uint256 => uint256)) public ordered_stocks;
     mapping(uint256 => uint256) public registered_stock;
     mapping(uint256 => uint256) public number_of_ordered_stocks;
     mapping(uint256 => uint256) public number_of_registered_stocks;
@@ -35,7 +34,6 @@ contract Admin {
         Manufacturer _manufacturer
     ) public returns (bool) {
         if (_manufacturer.receiveOrder(vac, qty, owner)) {
-            ordered_stocks[address(_manufacturer)][vac] += qty;
             number_of_ordered_stocks[vac] += qty;
             return true;
         } else {
@@ -82,17 +80,16 @@ contract Admin {
         uint256 qty,
         address _manufacturer
     ) public {
-        require(
-            ordered_stocks[_manufacturer][_vaccine] != 0,
-            "No order had been placed with this manufacturer"
-        );
-        require(
-            ordered_stocks[_manufacturer][_vaccine] >= qty,
-            "More than ordered vaccines has been received"
-        );
+        // require(
+        //     ordered_stocks[_manufacturer][_vaccine] != 0,
+        //     "No order had been placed with this manufacturer"
+        // );
+        // require(
+        //     ordered_stocks[_manufacturer][_vaccine] >= qty,
+        //     "More than ordered vaccines has been received"
+        // );
         available_stock[_vaccine] += qty;
         totalVaccines += qty;
-        ordered_stocks[_manufacturer][_vaccine] -= qty;
         number_of_ordered_stocks[_vaccine] -= qty;
     }
 
