@@ -51,8 +51,7 @@ contract Admins {
             return false;
         }
         Admin admin = admins[add];
-        admin.vaccinationDone(_aadhar, beneficiary);
-        return true;
+        return admin.vaccinationDone(_aadhar, beneficiary);
     }
 
     function getAllAdmins() public view returns (adminInfo[] memory) {

@@ -3,6 +3,7 @@ import { Button, Form, Table } from 'react-bootstrap'
 
 function Admin(props) {
     const [signedIn, setSignedIn] = useState(false)
+    const [aadharChosen, setAadharChosen] = useState(0)
     const [center, setCenter] = useState('')
     const [msg, setMsg] = useState('')
     const [orderVaccine, setOrderVaccine] = useState(1)
@@ -160,11 +161,28 @@ function Admin(props) {
                     Number(orderedStocks[String(orderVaccine)]) +
                     Number(orderQty),
             })
-            const arr = allManufacturers
-            arr[Number(manufacturerSelected)][String(orderVaccine)] -=
-                Number(orderQty)
+            const arr = []
+            for (let i = 0; i < allManufacturers.length; i++) {
+                if (i == Number(manufacturerSelected)) {
+                    arr.push({
+                        ...allManufacturers,
+                        [String(orderVaccine)]:
+                            allManufacturers[i][String(orderVaccine)] -
+                            orderQty,
+                    })
+                } else {
+                    arr.push({ ...allManufacturers })
+                }
+            }
             setAllManufacturers(arr)
         }
+    }
+
+    const vaccinationDone = async () => {
+        const response = await props.values.contract.methods
+            .adminVaccinationDone(aadharChosen)
+            .send({ from: props.values.accounts[0] })
+        console.log(response)
     }
 
     const userProfile = () => {
@@ -186,6 +204,7 @@ function Admin(props) {
                     </div>
                     <div className='card'>
                         <h1>Order Vaccines</h1>
+                        <br />
                         <Form.Group className='mb-3'>
                             <Form.Label>Select Manufacturer</Form.Label>
                             <Form.Select
@@ -224,6 +243,22 @@ function Admin(props) {
                             </Button>
                             <h4>{orderMsg}</h4>
                         </Form.Group>
+                    </div>
+                    <div className='card'>
+                        <h1>Complete Vaccination Procedure</h1>
+                        <br />
+                        <Form>
+                            <Form.Label>Quantity</Form.Label>
+                            <Form.Control
+                                onKeyUp={(e) => setAadharChosen(e.target.value)}
+                                type='number'
+                                placeholder='Enter Aadhar of the beneficiary'
+                            />
+                            <br />
+                            <Button onClick={(e) => vaccinationDone()}>
+                                Done
+                            </Button>
+                        </Form>
                     </div>
                 </div>
             </>

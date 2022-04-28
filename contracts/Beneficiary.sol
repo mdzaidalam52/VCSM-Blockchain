@@ -9,7 +9,6 @@ contract Beneficiary {
 
     uint256 public vac;
     uint256 public num_of_doses = 0;
-    bool public registered = false;
     uint256 registeredAdmin;
 
     constructor() {
@@ -22,21 +21,19 @@ contract Beneficiary {
         uint256 _aadhar
     ) public {
         require(
-            num_of_doses == 0 && !registered,
+            num_of_doses == 0,
             "This beneficiary has already have its first dose of vaccine"
         );
-        registered = true;
         _admin.registerBeneficiaryFirstVaccine(_aadhar, _vaccine);
         registeredAdmin = _admin.getCenterNo();
     }
 
     function registerSecondVaccine(uint _aadhar, Admin _admin) public {
         require(
-            num_of_doses == 1 && !registered,
+            num_of_doses == 1,
             "This beneficiary has not have its first dose of vaccine"
         );
-        registered = true;
-        _admin.registerBeneficiarySecondVaccine(_aadhar, this);
+        _admin.registerBeneficiarySecondVaccine(_aadhar, vac);
     }
 
     function getNumOfDoses() public view returns (uint256) {
@@ -55,7 +52,11 @@ contract Beneficiary {
         vac = _type;
     }
 
-    function setRegister() public {
-        registered = !registered;
+    function getRegisteredAdmin() public view returns(uint){
+        return registeredAdmin;
+    }
+
+    function setAdmin(uint val) public{
+        registeredAdmin = val;
     }
 }

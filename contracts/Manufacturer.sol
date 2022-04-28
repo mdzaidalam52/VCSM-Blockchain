@@ -73,8 +73,11 @@ contract Manufacturer {
         removeOrders(ind);
         Delivery delivery = new Delivery(owner, _admin, vac, qty);
         out_for_delivery[address(delivery)][vac] = qty;
+        number_of_ordered_stocks[vac] -= qty;
         number_of_out_for_delivery[vac] += qty;
-        deliveries.push(delivery);
+        if (number_of_deliveries == deliveries.length)
+            deliveries.push(delivery);
+        else deliveries[number_of_deliveries] = delivery;
         number_of_deliveries++;
     }
 

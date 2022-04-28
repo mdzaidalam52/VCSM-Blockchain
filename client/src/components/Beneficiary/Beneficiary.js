@@ -7,12 +7,13 @@ function Beneficiary(props) {
     const [aadhar, setAadhar] = useState(0)
     const [signedIn, setSignedIn] = useState(false)
     const [msg, setMsg] = useState('')
-    const [adminChosen, setAdminChosen] = useState(false)
     const [centerNumber, setCenterNumber] = useState(1)
+    const [selectedVaccine, setSelectedVaccine] = useState('1')
     const [adminArray, setAdminArray] = useState([])
-    const [BeneficiaryInfo, setBeneficiaryInfo] = useState({
+    const [beneficiaryInfo, setBeneficiaryInfo] = useState({
         vaccine: 0,
         numberOfDoses: 0,
+        admin: 0,
     })
 
     const register = async (e) => {
@@ -32,16 +33,18 @@ function Beneficiary(props) {
         const response = await props.values.contract.methods
             .getBeneficiaryInfo(Number(aadhar))
             .send({ from: props.values.accounts[0] })
+        console.log(response.events.BeneficiaryInfo.returnValues)
         if (response.events.BeneficiaryInfo.returnValues.info[1] === 10) {
             setMsg('This Aadhar is not registered with us')
             return
         }
         setBeneficiaryInfo({
-            vaccine: response.events.BeneficiaryInfo.returnValues.info[1],
-            numberOfDoses: response.events.BeneficiaryInfo.returnValues.info[0],
+            vaccine: response.events.BeneficiaryInfo.returnValues.info[0],
+            numberOfDoses: response.events.BeneficiaryInfo.returnValues.info[1],
+            admin: response.events.BeneficiaryInfo.returnValues.info[2],
         })
+        console.log(beneficiaryInfo)
         getAllAdmins()
-        setSignedIn(true)
     }
 
     const getAllAdmins = async () => {
@@ -61,6 +64,7 @@ function Beneficiary(props) {
             })
         }
         setAdminArray(arr)
+        setSignedIn(true)
     }
 
     const table = (data) => {
@@ -107,31 +111,92 @@ function Beneficiary(props) {
             )
         })
     }
+
+    const registerFirstVaccine = async () => {
+        const response = await props.values.contract.methods
+            .beneficiaryFirstVaccine(
+                Number(aadhar),
+                Number(selectedVaccine),
+                adminArray[centerNumber - 1].address
+            )
+            .send({ from: props.values.accounts[0] })
+        console.log(response.events.Success.returnValues.success)
+    }
+
+    const registerSecondVaccine = async () => {
+        const response = await props.values.contract.methods
+            .beneficiarySecondVaccine(
+                Number(aadhar),
+                adminArray[centerNumber - 1].address
+            )
+            .send({ from: props.values.accounts[0] })
+        console.log(response.events.Success.returnValues.success)
+    }
+
+    const error = (msg) => {
+        return msg
+    }
     const userProfile = () => {
+        console.log(Number(beneficiaryInfo.numberOfDoses))
+        if (Number(beneficiaryInfo.numberOfDoses) === 2) {
+            return (
+                <div className='card'>
+                    Congratulations!!! you have been successfully vaccinated
+                </div>
+            )
+        } else if (Number(beneficiaryInfo.admin) !== 0) {
+            return (
+                <div className='card'>
+                    {`Please complete your vaccination at center number ${beneficiaryInfo.admin} first and then proceed further`}
+                </div>
+            )
+        }
         return (
             <>
-                <Card.Header>{aadhar}</Card.Header>
-                <Card.Body>
-                    <Card.Title>Aadhar Number: {aadhar}</Card.Title>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Center Number</Form.Label>
+                <h1>Aadhar Number: {aadhar}</h1>
+                <div className='card'>
+                    <h2>Choose Vaccination Center</h2>
+                    <br />
+                    <Form>
+                        <Form.Group className='mb-3'>
+                            <Form.Label>Center Number</Form.Label>
+                            <Form.Select
+                                onSelect={(e) =>
+                                    setCenterNumber(e.target.value)
+                                }
+                            >
+                                {adminList()}
+                            </Form.Select>
+                        </Form.Group>
+                        {table(adminArray[Number(centerNumber) - 1])}
                         <Form.Select
-                            onSelect={(e) => setCenterNumber(e.target.value)}
+                            onSelect={(e) => {
+                                setSelectedVaccine(e.target.value)
+                            }}
                         >
-                            {adminList()}
+                            <option value={'1'}>Vaccine A</option>
+                            <option value={'2'}>Vaccine B</option>
+                            <option value={'3'}>Vaccine C</option>
+                            <option value={'4'}>Vaccine D</option>
                         </Form.Select>
-                    </Form.Group>
-                    {table(adminArray[Number(centerNumber) - 1])}
-                    <Form.Select>
-                        <option>Vaccine A</option>
-                        <option>Vaccine B</option>
-                        <option>Vaccine C</option>
-                        <option>Vaccine D</option>
-                    </Form.Select>
-                    <Dropdown.Divider />
-                    <Button variant='primary'>Dose 1</Button>{' '}
-                    <Button variant='primary'>Dose 2</Button>{' '}
-                </Card.Body>
+                        <br />
+                        {beneficiaryInfo.vaccine == 0 ? (
+                            <Button
+                                variant='primary'
+                                onClick={() => registerFirstVaccine()}
+                            >
+                                Dose 1
+                            </Button>
+                        ) : (
+                            <Button
+                                variant='primary'
+                                onClick={() => registerSecondVaccine()}
+                            >
+                                Dose 2
+                            </Button>
+                        )}
+                    </Form>
+                </div>
             </>
         )
     }

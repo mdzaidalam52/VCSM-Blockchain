@@ -66,11 +66,6 @@ function App() {
                                     Manufacturer
                                 </Link>
                             </Nav.Link>
-                            <Nav.Link>
-                                <Link to='/delivery' className='link'>
-                                    Delivery
-                                </Link>
-                            </Nav.Link>
                         </Nav>
                     </Container>
                 </Navbar>

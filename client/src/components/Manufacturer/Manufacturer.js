@@ -112,6 +112,7 @@ function Manufacturer(props) {
         setOrdersReceived(response.events.ManufacturerInfo.returnValues['0'][8])
         setDeliveries(response.events.ManufacturerInfo.returnValues['0'][9])
         setSignedIn(true)
+        console.log(outForDeliveryStocks)
     }
 
     const addStock = async () => {
@@ -137,15 +138,31 @@ function Manufacturer(props) {
             .manufacturerCreateDelivery(ind)
             .send({ from: props.values.accounts[0] })
         console.log(response)
-        if(response.events.Success.returnValues.success){
+        if (response.events.Success.returnValues.success) {
+            const os = {
+                ...orderedStocks,
+                [ordersReceived[ind][0]]:
+                    Number(orderedStocks[String(ordersReceived[ind][0])]) -
+                    Number(ordersReceived[ind][1]),
+            }
+            setOrderedStocks(os)
+            console.log(ordersReceived[ind])
+            // const outs = {
+            //     ...outForDeliveryStocks,
+            //     [ordersReceived[ind][0]]:
+            //         Number(
+            //             outForDeliveryStocks[String(ordersReceived[ind][0])]
+            //         ) + Number(outForDeliveryStocks[ind][1]),
+            // }
+            // setOutForDeliveryStocks(outs)
             const orders = []
             const deli = []
             const data = ordersReceived[ind]
-            for(let i = 0; i < ordersReceived.length; i++){
-                if(i != ind) orders.push(ordersReceived[i])
+            for (let i = 0; i < ordersReceived.length; i++) {
+                if (i != ind) orders.push(ordersReceived[i])
             }
-            setOrderedStocks(orders)
-            for(let i = 0; i < deliveries.length; i++){
+            setOrdersReceived(orders)
+            for (let i = 0; i < deliveries.length; i++) {
                 deli.push(deliveries[i])
             }
             deli.push(data)
@@ -153,10 +170,6 @@ function Manufacturer(props) {
         }
     }
 
-    useEffect(() => {
-        console.log('hey', deliveries)
-        console.log('hey', orderedStocks)
-    }, [deliveries, orderedStocks])
     const finishDelivery = async (ind) => {
         console.log(ind)
         const response = await props.values.contract.methods
@@ -164,9 +177,16 @@ function Manufacturer(props) {
             .send({ from: props.values.accounts[0] })
         console.log(response)
         if (response.events.Success.returnValues.success) {
+            // const outs = {
+            //     ...outForDeliveryStocks,
+            //     [String(deliveries[ind][0])]:
+            //         Number(outForDeliveryStocks[String(deliveries[ind][0])]) +
+            //         Number(outForDeliveryStocks[ind][1]),
+            // }
+            // setOutForDeliveryStocks(outs)
             const fin = []
-            for (let i = 0; i < outForDeliveryStocks.length; i++) {
-                if (i != ind) fin.push(outForDeliveryStocks)
+            for (let i = 0; i < deliveries.length; i++) {
+                if (i != ind) fin.push(deliveries[i])
             }
             setDeliveries(fin)
         }

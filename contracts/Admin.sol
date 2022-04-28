@@ -51,28 +51,33 @@ contract Admin {
         number_of_registered_stocks[_vaccine]++;
     }
 
-    function registerBeneficiarySecondVaccine(uint _aadhar, Beneficiary _beneficiary) public {
-        require(
-            _beneficiary.getNumOfDoses() == 0,
-            "This cannot be the beneficiary second vaccine"
-        );
-        uint256 _vaccine = _beneficiary.getVaccineType();
+    function registerBeneficiarySecondVaccine(
+        uint256 _aadhar,
+        uint _vaccine
+    ) public {
         require(available_stock[_vaccine] > 0, "Insufficient Stocks");
+        registered_stock[_aadhar] = _vaccine;
         available_stock[_vaccine] -= 1;
         totalVaccines -= 1;
         number_of_registered_stocks[_vaccine]++;
     }
 
-    function getCenterNo() public view returns(uint){
+    function getCenterNo() public view returns (uint256) {
         return centre_no;
     }
 
-    function vaccinationDone(uint _aadhar, Beneficiary _beneficiary) public {
+    function vaccinationDone(uint256 _aadhar, Beneficiary _beneficiary)
+        public
+        returns (bool)
+    {
+        if (registered_stock[_aadhar] == 0) return false;
         _beneficiary.increaseNumOfDoses();
         if (_beneficiary.getNumOfDoses() == 1)
             _beneficiary.setVaccineType(registered_stock[_aadhar]);
+        _beneficiary.setAdmin(0);
         registered_stock[_aadhar] = 0;
         number_of_registered_stocks[_beneficiary.getVaccineType()]--;
+        return true;
     }
 
     function receivedVaccine(

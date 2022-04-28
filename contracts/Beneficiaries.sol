@@ -11,6 +11,7 @@ contract Beneficiaries {
     struct beneficiaryInfo {
         uint256 vaccine;
         uint256 num_of_doses;
+        uint admin_center_no;
     }
 
     function createBenefeciary(uint256 _aadhar) public returns (bool) {
@@ -53,10 +54,10 @@ contract Beneficiaries {
         returns (beneficiaryInfo memory)
     {
         if (address(beneficiaries[_aadhar]) == address(0)) {
-            return beneficiaryInfo(10, 10);
+            return beneficiaryInfo(10, 10, 0);
         }
         Beneficiary ben = beneficiaries[_aadhar];
-        return beneficiaryInfo(ben.getVaccineType(), ben.getNumOfDoses());
+        return beneficiaryInfo(ben.getVaccineType(), ben.getNumOfDoses(), ben.getRegisteredAdmin());
     }
 
     function getBeneficiary(uint256 _aadhar) public view returns (Beneficiary) {
