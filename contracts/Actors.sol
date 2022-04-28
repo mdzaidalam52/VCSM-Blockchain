@@ -22,6 +22,7 @@ contract Actors {
     event AllManufacturersInfo(Manufacturers.manufacturerInfo[] arr);
     event ManufacturerInfo(Manufacturers.manufacturerInfo info);
     event AllManufacturerOrders(Manufacturer.orderInfo[] info);
+    event Value(uint value);
 
     constructor() {
         owner = msg.sender;
@@ -46,7 +47,40 @@ contract Actors {
         uint256 _vaccine,
         uint256 _qty,
         address _manufacturer
-    ) public {
+    ) public payable {
+        Manufacturers.manufacturerInfo memory info = manufacturer.getManufacturerInfo(_manufacturer);
+        if(_vaccine == 1){
+            if(info.price_a*_qty == msg.value){
+                payable(_manufacturer).transfer(msg.value);
+            }else{
+                emit Success(false);
+                return;
+            }
+        }else if(_vaccine == 2){
+            if(info.price_b*_qty == msg.value){
+                payable(_manufacturer).transfer(msg.value);
+            }else{
+                emit Success(false);
+                return;
+            }
+        }else if(_vaccine == 3){
+            if(info.price_c*_qty == msg.value){
+                payable(_manufacturer).transfer(msg.value);
+            }else{
+                emit Success(false);
+                return;
+            }
+        }else if(_vaccine == 4){
+            if(info.price_d*_qty == msg.value){
+                payable(_manufacturer).transfer(msg.value);
+            }else{
+                emit Success(false);
+                return;
+            }
+        }else {
+            emit Success(false);
+            return;
+        }
         emit Success(
             admin.adminCreateOrder(
                 msg.sender,

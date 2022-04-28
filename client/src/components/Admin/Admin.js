@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Form, Table } from 'react-bootstrap'
 
 function Admin(props) {
@@ -29,6 +29,7 @@ function Admin(props) {
         4: 0,
     })
     const [allManufacturers, setAllManufacturers] = useState([])
+    const [weiValue, setWeiValue] = useState(0)
 
     const register = async (e) => {
         e.preventDefault()
@@ -78,6 +79,7 @@ function Admin(props) {
                 .send({ from: props.values.accounts[0] })
             const data =
                 manufacturers.events.AllManufacturersInfo.returnValues['0']
+            console.log('Result', data)
             const arr = []
             for (let i = 0; i < data.length; i++) {
                 arr.push({
@@ -86,6 +88,10 @@ function Admin(props) {
                     2: data[i][1][1],
                     3: data[i][1][2],
                     4: data[i][1][3],
+                    _1: data[i][4],
+                    _2: data[i][5],
+                    _3: data[i][6],
+                    _4: data[i][7],
                 })
             }
             setAllManufacturers(arr)
@@ -118,6 +124,57 @@ function Admin(props) {
             )
         return null
     }
+    const priceList = () => {
+        if (allManufacturers)
+            return (
+                <>
+                    <h4>Price</h4>
+                    <Table>
+                        <thead>
+                            <tr>
+                                <th>Vaccine A</th>
+                                <th>Vaccine B</th>
+                                <th>Vaccine C</th>
+                                <th>Vaccine D</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    {Number(
+                                        allManufacturers[
+                                            Number(manufacturerSelected)
+                                        ]['_1']
+                                    ) / 1000000000}
+                                </td>
+                                <td>
+                                    {Number(
+                                        allManufacturers[
+                                            Number(manufacturerSelected)
+                                        ]['_2']
+                                    ) / 1000000000}
+                                </td>
+                                <td>
+                                    {Number(
+                                        allManufacturers[
+                                            Number(manufacturerSelected)
+                                        ]['_3']
+                                    ) / 1000000000}
+                                </td>
+                                <td>
+                                    {Number(
+                                        allManufacturers[
+                                            Number(manufacturerSelected)
+                                        ]['_4']
+                                    ) / 1000000000}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </Table>
+                </>
+            )
+        return null
+    }
 
     const manufacturerList = () => {
         let k = 0
@@ -128,6 +185,18 @@ function Admin(props) {
                 </option>
             )
         })
+    }
+
+    const changeManufacturerSelected = (e) => {
+        setManufacturerSelected(e.target.value)
+    }
+
+    const changeQty = (e) => {
+        setOrderQty(e.target.value)
+    }
+
+    const changeVaccine = (e) => {
+        setOrderVaccine(e.target.value)
     }
 
     const orderStock = async (e) => {
@@ -154,7 +223,17 @@ function Admin(props) {
                     Number(orderQty),
                     allManufacturers[Number(manufacturerSelected)].address
                 )
-                .send({ from: props.values.accounts[0] })
+                .send({
+                    from: props.values.accounts[0],
+                    value:
+                        Number(orderQty) *
+                        Number(
+                            allManufacturers[Number(manufacturerSelected)][
+                                '_' + orderVaccine
+                            ]
+                        ),
+                })
+            console.log(response)
             setOrderedStocks({
                 ...orderedStocks,
                 [String(orderVaccine)]:
@@ -209,20 +288,18 @@ function Admin(props) {
                             <Form.Label>Select Manufacturer</Form.Label>
                             <Form.Select
                                 onSelect={(e) =>
-                                    setManufacturerSelected(e.target.value)
+                                    changeManufacturerSelected(e.target.value)
                                 }
                             >
                                 {manufacturerList()}
                             </Form.Select>
                         </Form.Group>
+                        <h4>Quantity Available</h4>
                         {table(allManufacturers[Number(manufacturerSelected)])}
+                        {priceList()}
                         <Form.Group className='mb-3'>
                             <Form.Label>Select Vaccine Type</Form.Label>
-                            <Form.Select
-                                onChange={(e) =>
-                                    setOrderVaccine(e.target.value)
-                                }
-                            >
+                            <Form.Select onChange={(e) => changeVaccine(e)}>
                                 <option value={'1'}>A</option>
                                 <option value={'2'}>B</option>
                                 <option value={'3'}>C</option>
@@ -230,7 +307,7 @@ function Admin(props) {
                             </Form.Select>
                             <Form.Label>Quantity</Form.Label>
                             <Form.Control
-                                onKeyUp={(e) => setOrderQty(e.target.value)}
+                                onKeyUp={(e) => changeQty(e)}
                                 type='number'
                                 placeholder='Enter Quantity of Vaccine'
                             />
@@ -239,7 +316,15 @@ function Admin(props) {
                                 onClick={(e) => orderStock(e)}
                                 variant='primary'
                             >
-                                Add
+                                Pay{' '}
+                                {(Number(orderQty) *
+                                    Number(
+                                        allManufacturers[
+                                            Number(manufacturerSelected)
+                                        ]['_' + orderVaccine]
+                                    )) /
+                                    100000000}{' '}
+                                Gwei
                             </Button>
                             <h4>{orderMsg}</h4>
                         </Form.Group>

@@ -43,7 +43,6 @@ function Beneficiary(props) {
             numberOfDoses: response.events.BeneficiaryInfo.returnValues.info[1],
             admin: response.events.BeneficiaryInfo.returnValues.info[2],
         })
-        console.log(beneficiaryInfo)
         getAllAdmins()
     }
 
@@ -63,6 +62,8 @@ function Beneficiary(props) {
                 4: data[i][2][3],
             })
         }
+        console.log('hey')
+        console.log(beneficiaryInfo)
         setAdminArray(arr)
         setSignedIn(true)
     }
@@ -92,8 +93,6 @@ function Beneficiary(props) {
         else return null
     }
 
-    const getInfoAdmin = (center) => {}
-
     const changeCenterNumber = (e) => {
         setCenterNumber(e.target.value)
     }
@@ -120,7 +119,12 @@ function Beneficiary(props) {
                 adminArray[centerNumber - 1].address
             )
             .send({ from: props.values.accounts[0] })
-        console.log(response.events.Success.returnValues.success)
+        if(response.events.Success.returnValues.success['0']){
+            setBeneficiaryInfo({
+                ...beneficiaryInfo,
+
+            })
+        }
     }
 
     const registerSecondVaccine = async () => {
@@ -130,7 +134,12 @@ function Beneficiary(props) {
                 adminArray[centerNumber - 1].address
             )
             .send({ from: props.values.accounts[0] })
-        console.log(response.events.Success.returnValues.success)
+        if (response.events.Success.returnValues.success) {
+            setBeneficiaryInfo({
+                ...beneficiaryInfo,
+                admin: centerNumber,
+            })
+        }
     }
 
     const error = (msg) => {
@@ -168,7 +177,8 @@ function Beneficiary(props) {
                                 {adminList()}
                             </Form.Select>
                         </Form.Group>
-                        {table(adminArray[Number(centerNumber) - 1])}
+                        {/* {} */}
+                        {Number(beneficiaryInfo.numberOfDoses) === 2 ? '' : table(adminArray[Number(centerNumber) - 1])}
                         <Form.Select
                             onSelect={(e) => {
                                 setSelectedVaccine(e.target.value)
@@ -180,7 +190,7 @@ function Beneficiary(props) {
                             <option value={'4'}>Vaccine D</option>
                         </Form.Select>
                         <br />
-                        {beneficiaryInfo.vaccine == 0 ? (
+                        {Number(beneficiaryInfo.vaccine) === 0 || Number(beneficiaryInfo.vaccine) === 10? (
                             <Button
                                 variant='primary'
                                 onClick={() => registerFirstVaccine()}

@@ -25,7 +25,6 @@ contract Manufacturer {
         uint256 qty;
         address admin;
     }
-
     // mapping(address => mapping(uint256 => uint256)) ordered_stocks;
     orderInfo[] orders;
     uint256 number_of_orders;

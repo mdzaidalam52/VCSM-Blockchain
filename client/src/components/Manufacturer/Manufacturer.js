@@ -62,10 +62,10 @@ function Manufacturer(props) {
     const changeVaccinePrice = async () => {
         const response = await props.values.contract.methods
             .manufacturerSetPrice(
-                Number(vaccinePrice['1']),
-                Number(vaccinePrice['2']),
-                Number(vaccinePrice['3']),
-                Number(vaccinePrice['4'])
+                Number(vaccinePrice['1']*1000000000),
+                Number(vaccinePrice['2']*1000000000),
+                Number(vaccinePrice['3']*1000000000),
+                Number(vaccinePrice['4']*1000000000)
             )
             .send({ from: props.values.accounts[0] })
         console.log(response)
@@ -104,10 +104,10 @@ function Manufacturer(props) {
             4: response.events.ManufacturerInfo.returnValues['0'][3][3],
         })
         setVaccinePrice({
-            1: response.events.ManufacturerInfo.returnValues['0'][4],
-            2: response.events.ManufacturerInfo.returnValues['0'][5],
-            3: response.events.ManufacturerInfo.returnValues['0'][6],
-            4: response.events.ManufacturerInfo.returnValues['0'][7],
+            1: Number(response.events.ManufacturerInfo.returnValues['0'][4])/1000000000,
+            2: Number(response.events.ManufacturerInfo.returnValues['0'][5])/1000000000,
+            3: Number(response.events.ManufacturerInfo.returnValues['0'][6])/1000000000,
+            4: Number(response.events.ManufacturerInfo.returnValues['0'][7])/1000000000,
         })
         setOrdersReceived(response.events.ManufacturerInfo.returnValues['0'][8])
         setDeliveries(response.events.ManufacturerInfo.returnValues['0'][9])
